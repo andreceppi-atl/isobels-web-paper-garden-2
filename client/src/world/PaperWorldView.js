@@ -4,7 +4,12 @@ const KIND_FILL = Object.freeze({
   floor: WORLD_COLOR.paperDeep,
   tower: WORLD_COLOR.paperShade,
   ledge: WORLD_COLOR.paper,
-  rock: WORLD_COLOR.paperShade
+  rock: WORLD_COLOR.paperShade,
+  snow: WORLD_COLOR.ice,
+  branch: WORLD_COLOR.blossom,
+  trunk: WORLD_COLOR.blossom,
+  page: WORLD_COLOR.linkWash,
+  card: WORLD_COLOR.paper
 });
 
 export default class PaperWorldView {
@@ -141,7 +146,7 @@ export default class PaperWorldView {
     for (let x = solid.x + 8; x < solid.x + solid.w - 4; x += step) {
       graphics.lineBetween(x, solid.y + 3, Math.min(x + 8, solid.x + solid.w - 2), solid.y + 11);
     }
-    if (solid.kind === 'tower') {
+    if (solid.kind === 'tower' || solid.kind === 'trunk' || (solid.kind === 'page' && solid.h > 200)) {
       for (let y = solid.y + 34; y < solid.y + solid.h - 12; y += 58) {
         graphics.lineBetween(solid.x + 8, y, solid.x + solid.w - 8, y);
       }

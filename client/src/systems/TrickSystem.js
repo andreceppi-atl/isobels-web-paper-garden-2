@@ -128,6 +128,17 @@ export default class TrickSystem {
     this.onEvent({ label: 'THREAD LOST', points: 0, bailed: true });
   }
 
+  reset(time) {
+    this.active = null;
+    this.style = 0;
+    this.comboScore = 0;
+    this.chain = 0;
+    this.lastTrickId = null;
+    this.lastActionAt = time;
+    this.status = '';
+    this.statusUntil = 0;
+  }
+
   add(points, style, time) {
     this.totalScore += points;
     this.comboScore += points;

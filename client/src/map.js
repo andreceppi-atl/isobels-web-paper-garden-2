@@ -1,6 +1,6 @@
-import { loadMap } from '../../shared/level.js';
+import { loadMap, resolveMapId } from '../../shared/level.js';
 
-// The world's map. Dev builds can load another one with ?map=gaps (the original
-// practice level, used to regression-test the swing feel).
-const override = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('map') : null;
-export const MAP = loadMap(override);
+// The public build defaults to the continuous Overworld. The query override is
+// kept for the old physics practice maps and visual regression checks.
+export const MAP_ID = resolveMapId(new URLSearchParams(window.location.search).get('map'));
+export const MAP = loadMap(MAP_ID);

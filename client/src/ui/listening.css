@@ -1,6 +1,6 @@
 .iw-listen {
   position: fixed;
-  inset-block-start: var(--space-3);
+  inset-block-start: calc(var(--target) + var(--space-6));
   inset-inline-end: var(--space-3);
   z-index: 20;
   display: grid;
@@ -47,7 +47,7 @@
 .iw-listen__meter::-moz-progress-bar { background: var(--color-accent); }
 
 @media (max-width: 640px) {
-  .iw-listen { inset-block-start: var(--space-2); inset-inline: var(--space-2); width: auto; }
+  .iw-listen { inset-block-start: calc(var(--target) + var(--space-6)); inset-inline: var(--space-2); width: auto; }
 }
 
 @media (forced-colors: active) {

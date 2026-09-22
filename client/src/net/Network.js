@@ -1,3 +1,5 @@
+import { MAP_ID } from '../map.js';
+
 // Production points at the permanent Paper Garden WebSocket room. In local
 // development, ?server=ws://localhost:8787/ws?room=paper-garden-2 can override it.
 const SERVER_OVERRIDE = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('server') : null;
@@ -13,6 +15,7 @@ function websocketUrl(value) {
   if (url.protocol === 'http:') url.protocol = 'ws:';
   if (url.pathname === '/') url.pathname = '/ws';
   if (!url.searchParams.has('room')) url.searchParams.set('room', 'paper-garden-2');
+  url.searchParams.set('map', MAP_ID);
   return url.toString();
 }
 

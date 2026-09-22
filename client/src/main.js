@@ -3,6 +3,7 @@ import BootScene from './scenes/BootScene.js';
 import WorldScene from './scenes/WorldScene.js';
 import './ui/tokens.css';
 import './ui/listening.css';
+import './ui/map-switcher.css';
 import './ui/minimap.css';
 import './ui/combo.css';
 import './ui/touch.css';

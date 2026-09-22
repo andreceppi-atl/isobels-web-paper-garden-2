@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { WORLD_COLOR, WORLD_CSS, WORLD_TYPE } from '../world/worldTheme.js';
 import BootModeButton from '../ui/BootModeButton.js';
+import { MAP } from '../map.js';
 
 const ADJECTIVES = ['Silky', 'Dewy', 'Spry', 'Velvet', 'Nimble', 'Glimmer', 'Misty', 'Cobweb'];
 const NOUNS = ['Spinner', 'Weaver', 'Dangler', 'Skitter', 'Threadling', 'Anchor', 'Silkling'];
@@ -42,7 +43,7 @@ export default class BootScene extends Phaser.Scene {
     this.add.rectangle(width / 2, height / 2, frameWidth, frameHeight, WORLD_COLOR.paper)
       .setStrokeStyle(2, WORLD_COLOR.ink);
 
-    this.add.text(width / 2, height / 2 - 164, 'A WANDERING SOCIAL GAME / LONG GARDEN', {
+    this.add.text(width / 2, height / 2 - 164, `A WANDERING SOCIAL GAME / ${MAP.name.toUpperCase()}`, {
       fontFamily: WORLD_TYPE.ui,
       fontSize: '12px',
       color: WORLD_CSS.inkSoft

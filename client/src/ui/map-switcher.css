@@ -1,0 +1,52 @@
+.iw-map-switcher {
+  position: fixed;
+  inset-block-start: var(--space-3);
+  inset-inline-end: var(--space-3);
+  z-index: 24;
+  display: grid;
+  grid-template-columns: auto minmax(11rem, 1fr);
+  align-items: center;
+  gap: var(--space-2);
+  width: min(21rem, calc(100vw - var(--space-6)));
+  min-height: var(--target);
+  padding: var(--space-1) var(--space-2);
+  border: var(--border-strong) solid var(--color-border);
+  background: var(--color-surface-raised);
+  color: var(--color-fg);
+  font: var(--text-xs)/1.2 var(--font-ui);
+}
+
+.iw-map-switcher label {
+  color: var(--color-fg-muted);
+  white-space: nowrap;
+}
+
+.iw-map-switcher select {
+  min-width: 0;
+  min-height: var(--target);
+  padding-inline: var(--space-2);
+  border: var(--border-thin) solid var(--color-border);
+  border-radius: 0;
+  background: var(--color-surface);
+  color: var(--color-fg);
+  font: inherit;
+  cursor: pointer;
+}
+
+.iw-map-switcher select:hover { background: var(--color-accent-hover); color: var(--color-accent-fg); }
+.iw-map-switcher select:focus-visible { outline: 0; box-shadow: var(--shadow-focus); }
+.iw-map-switcher select:disabled { color: var(--color-disabled); cursor: not-allowed; }
+
+@media (max-width: 640px) {
+  .iw-map-switcher {
+    inset-block-start: var(--space-2);
+    inset-inline: var(--space-2);
+    width: auto;
+  }
+}
+
+@media (forced-colors: active) {
+  .iw-map-switcher,
+  .iw-map-switcher select { border-color: ButtonText; }
+  .iw-map-switcher select:focus-visible { outline: 3px solid Highlight; outline-offset: 2px; box-shadow: none; }
+}

@@ -1,6 +1,6 @@
 import { DurableObject } from 'cloudflare:workers';
 import { DEFAULT_THREAD_COLOR, isThreadColor } from '../../shared/colors.js';
-import { loadMap } from '../../shared/level.js';
+import { loadMap, resolveMapId } from '../../shared/level.js';
 import { buildPermanentStrands } from '../../shared/worldWebs.js';
 import {
   STRAND,
@@ -11,10 +11,6 @@ import {
   spinCost,
   strandBlocked
 } from '../../shared/webs.js';
-
-const WORLD = loadMap();
-const WORLD_W = WORLD.width;
-const WORLD_H = WORLD.height + 200;
 
 const MAX_PLAYERS = 50;
 const MIN_STATE_INTERVAL_MS = 30;
@@ -75,16 +71,16 @@ function cleanPalette(value) {
   return typeof value === 'string' && /^[a-z]{1,16}$/.test(value) ? value : 'autumn';
 }
 
-function cleanState(value) {
+function cleanState(value, world) {
   if (!value || typeof value !== 'object') return null;
-  const x = clampNum(value.x, -200, WORLD_W + 200);
-  const y = clampNum(value.y, -400, WORLD_H);
+  const x = clampNum(value.x, -200, world.width + 200);
+  const y = clampNum(value.y, -400, world.height + 200);
   if (x === null || y === null) return null;
 
   let anchor = null;
   if (value.anchor && typeof value.anchor === 'object') {
-    const ax = clampNum(value.anchor.x, -200, WORLD_W + 200);
-    const ay = clampNum(value.anchor.y, -400, WORLD_H);
+    const ax = clampNum(value.anchor.x, -200, world.width + 200);
+    const ay = clampNum(value.anchor.y, -400, world.height + 200);
     if (ax !== null && ay !== null) anchor = { x: ax, y: ay };
   }
 
@@ -154,6 +150,9 @@ function originAllowed(origin, configuredOrigins = '') {
 export class GameRoom extends DurableObject {
   constructor(ctx, env) {
     super(ctx, env);
+    this.mapId = resolveMapId();
+    this.world = loadMap(this.mapId);
+    this.hasMapIdentity = false;
     ctx.blockConcurrencyWhile(async () => {
       this.ctx.storage.sql.exec(`
         CREATE TABLE IF NOT EXISTS profiles (
@@ -194,12 +193,29 @@ export class GameRoom extends DurableObject {
         CREATE INDEX IF NOT EXISTS idx_strands_expires ON strands(expires_at);
         CREATE INDEX IF NOT EXISTS idx_nests_slot ON nests(slot);
       `);
+      const storedMapId = await this.ctx.storage.get('mapId');
+      if (typeof storedMapId === 'string') {
+        this.mapId = resolveMapId(storedMapId);
+        this.world = loadMap(this.mapId);
+        this.hasMapIdentity = true;
+      }
     });
   }
 
   async fetch(request) {
     if (request.headers.get('Upgrade')?.toLowerCase() !== 'websocket') {
       return new Response('Expected Upgrade: websocket', { status: 426 });
+    }
+
+    const requestedMapId = resolveMapId(new URL(request.url).searchParams.get('map'));
+    if (this.hasMapIdentity && requestedMapId !== this.mapId) {
+      return new Response('Map room mismatch', { status: 409 });
+    }
+    if (!this.hasMapIdentity) {
+      this.mapId = requestedMapId;
+      this.world = loadMap(this.mapId);
+      await this.ctx.storage.put('mapId', this.mapId);
+      this.hasMapIdentity = true;
     }
 
     const pair = new WebSocketPair();
@@ -284,7 +300,7 @@ export class GameRoom extends DurableObject {
   }
 
   publicNest(row) {
-    if (!row || !Number.isInteger(row.slot) || !WORLD.nestSlots?.[row.slot]) return null;
+    if (!row || !Number.isInteger(row.slot) || !this.world.nestSlots?.[row.slot]) return null;
     return {
       slot: row.slot,
       name: cleanName(row.name),
@@ -313,7 +329,7 @@ export class GameRoom extends DurableObject {
       return { ...existing, name };
     }
     const used = new Set(this.ctx.storage.sql.exec('SELECT slot FROM nests').toArray().map((row) => row.slot));
-    const slot = WORLD.nestSlots?.findIndex((_, index) => !used.has(index)) ?? -1;
+    const slot = this.world.nestSlots?.findIndex((_, index) => !used.has(index)) ?? -1;
     if (slot < 0) return null;
     this.ctx.storage.sql.exec(
       'INSERT INTO nests (pid, slot, name, created_at) VALUES (?, ?, ?, ?)',
@@ -428,25 +444,25 @@ export class GameRoom extends DurableObject {
   validateSpin(payload, connection) {
     const raw = payload && typeof payload === 'object' ? payload : {};
     const values = [
-      clampNum(raw.x1, -500, WORLD_W + 500),
-      clampNum(raw.y1, -500, WORLD_H + 500),
-      clampNum(raw.x2, -500, WORLD_W + 500),
-      clampNum(raw.y2, -500, WORLD_H + 500)
+      clampNum(raw.x1, -500, this.world.width + 500),
+      clampNum(raw.y1, -500, this.world.height + 500),
+      clampNum(raw.x2, -500, this.world.width + 500),
+      clampNum(raw.y2, -500, this.world.height + 500)
     ];
     if (values.includes(null)) return { ok: false, error: 'bad-points' };
 
     const [x1, y1, x2, y2] = values;
     const strands = this.strandRows();
-    const permanent = buildPermanentStrands(WORLD, this.publicNests());
+    const permanent = buildPermanentStrands(this.world, this.publicNests());
     const snapStrands = [...permanent, ...strands];
-    const p1 = snapPoint(WORLD, x1, y1, snapStrands);
-    const p2 = snapPoint(WORLD, x2, y2, snapStrands);
+    const p1 = snapPoint(this.world, x1, y1, snapStrands);
+    const p2 = snapPoint(this.world, x2, y2, snapStrands);
     if (!p1 || !p2) return { ok: false, error: 'no-node' };
 
     const len = distance(p1.x, p1.y, p2.x, p2.y);
     if (len < STRAND.MIN_LEN) return { ok: false, error: 'too-short' };
     if (len > STRAND.MAX_LEN) return { ok: false, error: 'too-long' };
-    if (strandBlocked(WORLD, p1, p2)) return { ok: false, error: 'blocked' };
+    if (strandBlocked(this.world, p1, p2)) return { ok: false, error: 'blocked' };
     if (!connection.state || distance(connection.state.x, connection.state.y, p1.x, p1.y) > STRAND.START_REACH) {
       return { ok: false, error: 'too-far' };
     }
@@ -530,7 +546,7 @@ export class GameRoom extends DurableObject {
       case 'state': {
         if (now - connection.rates.state < MIN_STATE_INTERVAL_MS) return;
         connection.rates.state = now;
-        const state = cleanState(frame.data);
+        const state = cleanState(frame.data, this.world);
         if (!state) return;
         connection.state = state;
         saveConnection(ws, connection);
@@ -794,7 +810,8 @@ export default {
 
     const requestedRoom = url.searchParams.get('room') || 'paper-garden-2';
     const room = ROOM_RE.test(requestedRoom) ? requestedRoom : 'paper-garden-2';
-    const stub = env.GAME_ROOMS.getByName(room);
+    const mapId = resolveMapId(url.searchParams.get('map'));
+    const stub = env.GAME_ROOMS.getByName(`${room}:${mapId}`);
     return stub.fetch(request);
   }
 };

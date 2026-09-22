@@ -9,6 +9,7 @@ import EmoteBar from '../ui/EmoteBar.js';
 import ColorPicker from '../ui/ColorPicker.js';
 import ListeningDeck from '../ui/ListeningDeck.js';
 import MiniMap from '../ui/MiniMap.js';
+import MapSwitcher from '../ui/MapSwitcher.js';
 import ComboMeter from '../ui/ComboMeter.js';
 import MobileControls from '../ui/MobileControls.js';
 import { EMOTES, emoteIndexForKeyCode } from '../ui/emotes.js';
@@ -22,6 +23,7 @@ import { MAP } from '../map.js';
 import { circleContacts } from '../../../shared/geometry.js';
 import Network from '../net/Network.js';
 import PaperWorldView from '../world/PaperWorldView.js';
+import RegionBackdrop from '../world/RegionBackdrop.js';
 import { WORLD_COLOR, WORLD_CSS, WORLD_TYPE } from '../world/worldTheme.js';
 import { THREAD_COLORS, THREAD_COLOR_KEYS, DEFAULT_THREAD_COLOR, isThreadColor, threadHex } from '../../../shared/colors.js';
 import { buildNest, buildStockStrands } from '../../../shared/worldWebs.js';
@@ -125,6 +127,7 @@ export default class WorldScene extends Phaser.Scene {
     this.nameTag.setDepth(3);
     this.setupNetwork();
     this.miniMap = new MiniMap(MAP);
+    if (MAP.waypoints?.length) this.mapSwitcher = new MapSwitcher(MAP, (waypoint) => this.travelTo(waypoint));
     if (this.touchMode) {
       this.mobileControls = new MobileControls({
         onJumpDown: () => this.handleTouchJump(),
@@ -295,11 +298,24 @@ export default class WorldScene extends Phaser.Scene {
       this.colorPicker.destroy();
       this.listeningDeck.destroy();
       this.miniMap?.destroy();
+      this.mapSwitcher?.destroy();
       this.comboMeter?.destroy();
       this.mobileControls?.destroy();
       this.nests?.destroy();
       this.residents?.destroy();
+      this.atmosphere?.destroy();
     });
+  }
+
+  travelTo(waypoint) {
+    if (!waypoint) return;
+    this.spider.releaseWeb();
+    this.crawl.end();
+    this.matter.body.setPosition(this.spider.body, { x: waypoint.x, y: waypoint.y });
+    this.matter.body.setVelocity(this.spider.body, { x: 0, y: 0 });
+    this.cameras.main.centerOn(waypoint.x, waypoint.y);
+    this.tricks.reset(this.time.now);
+    this.popupScore(`MAP / ${waypoint.label.replace(/^\d+ \/ /, '')}`);
   }
 
   spawnAtHome(home) {
@@ -465,6 +481,8 @@ export default class WorldScene extends Phaser.Scene {
   }
 
   buildLevel() {
+    this.atmosphere = new RegionBackdrop(this, MAP);
+    this.atmosphere.build();
     this.worldView = new PaperWorldView(this, MAP, this.anchors);
     this.worldView.build();
   }
@@ -605,6 +623,12 @@ export default class WorldScene extends Phaser.Scene {
 
     this.remotes.forEach((r) => r.update(delta));
     this.residents?.update(time);
+    this.atmosphere?.update(time, {
+      x: body.position.x,
+      y: body.position.y + 14,
+      vx: body.velocity.x,
+      grounded: onGround || this.crawl.active
+    });
     this.updateHandshakeUi();
     this.broadcastState(time);
     this.miniMap?.update(time, {
@@ -613,6 +637,7 @@ export default class WorldScene extends Phaser.Scene {
       strands: this.strands.list(),
       camera: this.cameras.main
     });
+    this.mapSwitcher?.update(time, body.position);
     this.comboMeter?.update(this.tricks.snapshot(time));
 
     this.hudText.setText(
