@@ -1,0 +1,66 @@
+:root {
+  color-scheme: light;
+  --color-bg: oklch(98.5% 0.006 95);
+  --color-bg-subtle: oklch(97% 0.003 95);
+  --color-surface: oklch(97% 0.003 95);
+  --color-surface-raised: oklch(98.5% 0.006 95);
+  --color-fg: oklch(8% 0.004 95);
+  --color-fg-muted: oklch(46% 0.008 95);
+  --color-fg-subtle: oklch(46% 0.008 95);
+  --color-border: oklch(16% 0.006 95);
+  --color-accent: oklch(8% 0.004 95);
+  --color-accent-hover: oklch(16% 0.006 95);
+  --color-accent-fg: oklch(98.5% 0.006 95);
+  --color-fg-on-accent: oklch(98.5% 0.006 95);
+  --color-focus-ring: oklch(8% 0.004 95);
+  --color-disabled: oklch(78% 0.008 95);
+  --font-display: Georgia, "Times New Roman", serif;
+  --font-ui: "Courier New", Courier, monospace;
+  --text-xs: clamp(0.75rem, 0.72rem + 0.15vw, 0.875rem);
+  --text-sm: clamp(0.875rem, 0.82rem + 0.2vw, 1rem);
+  --text-base: clamp(1rem, 0.94rem + 0.25vw, 1.125rem);
+  --text-3xl: clamp(2.25rem, 1.6rem + 3vw, 3.75rem);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-12: 48px;
+  --target: 44px;
+  --measure-chat: 22.5rem;
+  --measure-controls: 32rem;
+  --measure-map: 16.5rem;
+  --measure-map-compact: 11rem;
+  --radius-full: 9999px;
+  --border-thin: 1px;
+  --border-strong: 2px;
+  --duration-fast: 150ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --shadow-focus: 0 0 0 2px var(--color-bg), 0 0 0 5px var(--color-focus-ring);
+  --thread-silk: #25231f;
+  --thread-gold: #7a5e00;
+  --thread-amber: #925000;
+  --thread-coral: #a63c32;
+  --thread-ruby: #a82b45;
+  --thread-rose: #9d3c72;
+  --thread-lilac: #76529b;
+  --thread-violet: #5d45a3;
+  --thread-sky: #356b8c;
+  --thread-ice: #4f7484;
+  --thread-mint: #3d765b;
+  --thread-lime: #61752b;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { overflow: hidden; background: var(--color-bg); color: var(--color-fg); font-family: var(--font-ui); }
+#app { width: 100vw; min-height: 100dvh; }
+#app canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+@media (prefers-contrast: more) {
+  :root { --color-fg-muted: var(--color-fg); --color-border: var(--color-fg); }
+}

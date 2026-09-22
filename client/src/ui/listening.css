@@ -1,0 +1,59 @@
+.iw-listen {
+  position: fixed;
+  inset-block-start: var(--space-3);
+  inset-inline-end: var(--space-3);
+  z-index: 20;
+  display: grid;
+  grid-template-columns: auto minmax(112px, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+  width: min(320px, calc(100vw - var(--space-6)));
+  padding: var(--space-2);
+  border: var(--border-strong) solid var(--color-border);
+  background: var(--color-surface-raised);
+  color: var(--color-fg);
+  font: var(--text-xs)/1.3 var(--font-ui);
+}
+
+.iw-listen__button,
+.iw-listen__next {
+  min-width: var(--target);
+  min-height: var(--target);
+  border: var(--border-thin) solid var(--color-border);
+  border-radius: 0;
+  background: var(--color-surface);
+  color: var(--color-fg);
+  font: inherit;
+  cursor: pointer;
+  transition: transform var(--duration-fast) var(--ease-out), opacity var(--duration-fast) var(--ease-out);
+}
+
+.iw-listen__button:hover,
+.iw-listen__next:hover { background: var(--color-accent-hover); color: var(--color-accent-fg); }
+.iw-listen__button:active,
+.iw-listen__next:active { transform: translate(2px, 2px); }
+.iw-listen__button:focus-visible,
+.iw-listen__next:focus-visible { outline: 0; box-shadow: var(--shadow-focus); }
+.iw-listen__button:disabled,
+.iw-listen__next:disabled { color: var(--color-disabled); cursor: not-allowed; opacity: 0.6; }
+.iw-listen__button[aria-busy="true"] { cursor: wait; opacity: 0.7; }
+.iw-listen__copy { display: grid; gap: var(--space-1); min-width: 0; }
+.iw-listen__copy strong,
+.iw-listen__copy span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.iw-listen__copy span { color: var(--color-fg-muted); }
+.iw-listen__meter { grid-column: 1 / -1; width: 100%; height: var(--space-2); border: var(--border-thin) solid var(--color-border); border-radius: 0; }
+.iw-listen__meter::-webkit-progress-bar { background: var(--color-bg-subtle); }
+.iw-listen__meter::-webkit-progress-value { background: var(--color-accent); }
+.iw-listen__meter::-moz-progress-bar { background: var(--color-accent); }
+
+@media (max-width: 640px) {
+  .iw-listen { inset-block-start: var(--space-2); inset-inline: var(--space-2); width: auto; }
+}
+
+@media (forced-colors: active) {
+  .iw-listen,
+  .iw-listen__button,
+  .iw-listen__next { border-color: ButtonText; }
+  .iw-listen__button:focus-visible,
+  .iw-listen__next:focus-visible { outline: 3px solid Highlight; outline-offset: 2px; box-shadow: none; }
+}

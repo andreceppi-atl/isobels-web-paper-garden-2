@@ -1,0 +1,119 @@
+.iw-mobile-start {
+  position: fixed;
+  inset-block-start: calc(50% + var(--space-12) + var(--space-12) + var(--space-12));
+  inset-inline-start: 50%;
+  z-index: 40;
+  min-width: var(--target);
+  min-height: var(--target);
+  padding-inline: var(--space-3);
+  border: var(--border-thin) solid var(--color-border);
+  border-radius: 0;
+  background: var(--color-surface-raised);
+  color: var(--color-fg);
+  font: var(--text-xs)/1 var(--font-ui);
+  cursor: pointer;
+  transform: translateX(-50%);
+  transition: transform var(--duration-fast) var(--ease-out), opacity var(--duration-fast) var(--ease-out);
+}
+
+.iw-mobile-start:hover { background: var(--color-accent-hover); color: var(--color-accent-fg); }
+.iw-mobile-start:focus-visible { outline: 0; box-shadow: var(--shadow-focus); }
+.iw-mobile-start:active { transform: translate(calc(-50% + 2px), 2px); }
+.iw-mobile-start:disabled { color: var(--color-disabled); cursor: not-allowed; opacity: 0.6; }
+.iw-mobile-start[aria-busy='true'] { cursor: wait; opacity: 0.7; }
+
+.iw-touch {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  color: var(--color-fg);
+  font: 700 var(--text-xs)/1 var(--font-ui);
+  pointer-events: none;
+  user-select: none;
+}
+
+.iw-touch__stick {
+  position: absolute;
+  inset-inline-start: var(--space-3);
+  inset-block-end: calc(var(--target) + var(--space-12) + var(--space-6) + var(--space-1) + env(safe-area-inset-bottom));
+  width: 112px;
+  height: 112px;
+  padding: 0;
+  border: var(--border-strong) solid var(--color-border);
+  border-radius: 0;
+  background: var(--color-surface-raised);
+  color: var(--color-fg-muted);
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.iw-touch__stick:hover { background: var(--color-bg-subtle); }
+.iw-touch__stick:focus-visible { outline: 0; box-shadow: var(--shadow-focus); }
+.iw-touch__stick:active { transform: translate(2px, 2px); }
+.iw-touch__stick:disabled { color: var(--color-disabled); opacity: 0.6; }
+.iw-touch__stick[aria-busy='true'] { opacity: 0.7; }
+.iw-touch__thumb {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  width: var(--target);
+  height: var(--target);
+  border: var(--border-thin) solid var(--color-border);
+  background: var(--color-accent);
+  transform: translate(-50%, -50%);
+}
+.iw-touch__stick-label { position: absolute; inset-inline: 0; inset-block-end: var(--space-1); }
+
+.iw-touch__actions {
+  position: absolute;
+  inset-inline-end: var(--space-3);
+  inset-block-end: calc(var(--target) + var(--space-12) + var(--space-6) + var(--space-1) + env(safe-area-inset-bottom));
+  display: grid;
+  grid-template-columns: repeat(2, var(--target));
+  gap: var(--space-2);
+  pointer-events: auto;
+}
+
+.iw-touch__button {
+  min-width: var(--target);
+  min-height: var(--target);
+  padding: var(--space-1);
+  border: var(--border-strong) solid var(--color-border);
+  border-radius: 0;
+  background: var(--color-surface-raised);
+  color: var(--color-fg);
+  font: inherit;
+  touch-action: none;
+  transition: transform var(--duration-fast) var(--ease-out), opacity var(--duration-fast) var(--ease-out);
+}
+
+.iw-touch__button--trick { grid-column: 1 / -1; }
+.iw-touch__button:hover { background: var(--color-accent-hover); color: var(--color-accent-fg); }
+.iw-touch__button:focus-visible { outline: 0; box-shadow: var(--shadow-focus); }
+.iw-touch__button:active,
+.iw-touch__button.is-pressed { transform: translate(2px, 2px); }
+.iw-touch__button:disabled { color: var(--color-disabled); opacity: 0.6; }
+.iw-touch__button[aria-busy='true'] { opacity: 0.7; }
+.iw-touch-active #app canvas { touch-action: none; }
+
+@media (max-width: 640px) {
+  .iw-touch__stick { inset-inline-start: var(--space-2); }
+  .iw-touch__actions { inset-inline-end: var(--space-2); }
+}
+
+@media (max-width: 375px) {
+  .iw-touch-active .iw-combo {
+    width: calc(var(--target) + var(--space-12) + var(--space-6) + var(--space-2));
+  }
+  .iw-touch-active .iw-combo__hint { display: none; }
+}
+
+@media (forced-colors: active) {
+  .iw-mobile-start,
+  .iw-touch__stick,
+  .iw-touch__thumb,
+  .iw-touch__button { border-color: ButtonText; }
+  .iw-mobile-start:focus-visible,
+  .iw-touch__stick:focus-visible,
+  .iw-touch__button:focus-visible { outline: 3px solid Highlight; outline-offset: 2px; box-shadow: none; }
+}

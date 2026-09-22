@@ -1,0 +1,53 @@
+.iw-combo {
+  position: fixed;
+  inset-block-start: 50%;
+  inset-inline-end: var(--space-3);
+  z-index: 20;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  width: var(--measure-map-compact);
+  padding: var(--space-2);
+  border: var(--border-strong) solid var(--color-border);
+  background: var(--color-surface-raised);
+  color: var(--color-fg);
+  font: var(--text-xs)/1.25 var(--font-ui);
+  opacity: 0.72;
+  transform: translateY(-50%);
+  transition: transform var(--duration-fast) var(--ease-out), opacity var(--duration-fast) var(--ease-out);
+}
+
+.iw-combo.is-live { opacity: 1; }
+.iw-combo.is-hit { transform: translate(-4px, -50%); }
+.iw-combo__rank { grid-row: 1 / 3; font: 700 var(--text-3xl)/0.9 var(--font-display); }
+.iw-combo__copy { display: grid; min-width: 0; }
+.iw-combo__kicker,
+.iw-combo__label,
+.iw-combo__meta,
+.iw-combo__action,
+.iw-combo__hint { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.iw-combo__kicker { color: var(--color-fg-muted); }
+.iw-combo__label { font-weight: 700; letter-spacing: 0.04em; }
+.iw-combo__meta { color: var(--color-fg-muted); }
+.iw-combo__meter { grid-column: 1 / -1; width: 100%; height: var(--space-2); border: var(--border-thin) solid var(--color-border); border-radius: 0; }
+.iw-combo__meter::-webkit-progress-bar { background: var(--color-bg-subtle); }
+.iw-combo__meter::-webkit-progress-value { background: var(--color-accent); }
+.iw-combo__meter::-moz-progress-bar { background: var(--color-accent); }
+.iw-combo__action { grid-column: 1 / -1; min-height: 1.25em; font-weight: 700; }
+.iw-combo__hint { grid-column: 1 / -1; color: var(--color-fg-muted); font-size: 0.75em; }
+
+@media (max-width: 640px) {
+  .iw-combo {
+    inset-block-start: calc(var(--target) + var(--space-12) + var(--space-12) + var(--space-12));
+    inset-inline-end: var(--space-2);
+    transform: none;
+  }
+  .iw-combo.is-hit { transform: translateX(-4px); }
+  .iw-combo__hint { white-space: normal; }
+}
+
+@media (forced-colors: active) {
+  .iw-combo,
+  .iw-combo__meter { border-color: ButtonText; }
+}

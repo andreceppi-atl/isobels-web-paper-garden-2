@@ -1,0 +1,70 @@
+.ws-chat {
+  position: fixed;
+  inset-inline-start: var(--space-3);
+  inset-block-end: var(--space-3);
+  z-index: 10;
+  width: min(var(--measure-chat), calc(100vw - var(--space-6)));
+  color: var(--color-fg);
+  font: var(--text-xs)/1.35 var(--font-ui);
+  pointer-events: none;
+}
+
+.ws-chat-log { display: flex; flex-direction: column; gap: var(--space-1); margin-block-end: var(--space-2); }
+.ws-chat-line { padding: var(--space-1) var(--space-2); border: var(--border-thin) solid var(--color-border); background: var(--color-surface-raised); word-break: break-word; transition: opacity var(--duration-fast) var(--ease-out); }
+.ws-chat-line.old { opacity: 0.5; }
+.ws-chat-line.system { color: var(--color-fg-muted); font-style: italic; }
+.ws-chat-name { color: var(--color-fg); font-weight: 700; }
+.ws-chat-line.mine .ws-chat-name::before { content: '■ '; }
+.ws-chat-input { width: 100%; min-height: var(--target); padding: var(--space-2); border: var(--border-strong) solid var(--color-border); border-radius: 0; outline: 0; background: var(--color-surface-raised); color: var(--color-fg); font: inherit; pointer-events: auto; }
+.ws-chat-input::placeholder { color: var(--color-fg-muted); }
+.ws-chat-input:hover { background: var(--color-bg-subtle); }
+.ws-chat-input:focus-visible { box-shadow: var(--shadow-focus); }
+.ws-chat-input:disabled { color: var(--color-disabled); cursor: not-allowed; opacity: 0.7; }
+
+.ws-emotes { position: fixed; inset-inline-end: var(--space-3); inset-block-end: var(--space-3); z-index: 10; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-2); max-width: min(var(--measure-controls), calc(100vw - var(--space-6))); }
+.ws-emote-btn { position: relative; width: var(--target); height: var(--target); padding: 0; border: var(--border-thin) solid var(--color-border); border-radius: 0; background: var(--color-surface-raised); color: var(--color-fg); cursor: pointer; font: 700 var(--text-sm)/1 var(--font-ui); text-align: center; transition: transform var(--duration-fast) var(--ease-out), opacity var(--duration-fast) var(--ease-out); }
+.ws-emote-btn:hover { background: var(--color-accent-hover); color: var(--color-accent-fg); }
+.ws-emote-btn:active { transform: translate(2px, 2px); }
+.ws-emote-btn:focus-visible { outline: 0; box-shadow: var(--shadow-focus); }
+.ws-emote-btn:disabled { color: var(--color-disabled); cursor: not-allowed; opacity: 0.6; }
+.ws-emote-key { position: absolute; inset-inline-start: 2px; inset-block-start: 1px; color: var(--color-fg-muted); font: 8px/10px var(--font-ui); }
+
+.ws-color { position: fixed; inset-inline-end: var(--space-3); inset-block-end: calc(var(--target) + var(--space-6)); z-index: 10; display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-2); }
+.ws-color-toggle { display: flex; align-items: center; gap: var(--space-2); min-height: var(--target); padding-inline: var(--space-2); border: var(--border-thin) solid var(--color-border); border-radius: 0; background: var(--color-surface-raised); color: var(--color-fg); cursor: pointer; font: var(--text-xs) var(--font-ui); }
+.ws-color-toggle:hover { background: var(--color-accent-hover); color: var(--color-accent-fg); }
+.ws-color-toggle:focus-visible { outline: 0; box-shadow: var(--shadow-focus); }
+.ws-color-dot { width: 16px; height: 16px; border: var(--border-thin) solid var(--color-border); border-radius: var(--radius-full); background: var(--swatch-color, var(--color-fg)); }
+.ws-color-panel { display: none; grid-template-columns: repeat(6, var(--target)); gap: var(--space-2); padding: var(--space-2); border: var(--border-strong) solid var(--color-border); background: var(--color-surface-raised); }
+.ws-color.open .ws-color-panel { display: grid; }
+.ws-color-swatch { width: var(--target); height: var(--target); padding: 0; border: var(--border-thin) solid var(--color-border); border-radius: 0; background: var(--swatch-color, var(--color-fg-muted)); cursor: pointer; }
+.ws-color-swatch:hover { transform: translate(2px, 2px); }
+.ws-color-swatch:focus-visible { outline: 0; box-shadow: var(--shadow-focus); }
+.ws-color-swatch.selected { border-width: 4px; }
+
+[data-thread='silk'] { --swatch-color: var(--thread-silk); }
+[data-thread='gold'] { --swatch-color: var(--thread-gold); }
+[data-thread='amber'] { --swatch-color: var(--thread-amber); }
+[data-thread='coral'] { --swatch-color: var(--thread-coral); }
+[data-thread='ruby'] { --swatch-color: var(--thread-ruby); }
+[data-thread='rose'] { --swatch-color: var(--thread-rose); }
+[data-thread='lilac'] { --swatch-color: var(--thread-lilac); }
+[data-thread='violet'] { --swatch-color: var(--thread-violet); }
+[data-thread='sky'] { --swatch-color: var(--thread-sky); }
+[data-thread='ice'] { --swatch-color: var(--thread-ice); }
+[data-thread='mint'] { --swatch-color: var(--thread-mint); }
+[data-thread='lime'] { --swatch-color: var(--thread-lime); }
+
+@media (max-width: 768px) {
+  .ws-chat { inset-block-end: calc(var(--target) + var(--space-6)); }
+  .ws-chat-log { display: none; }
+  .ws-emotes { inset-inline: var(--space-2); overflow-x: auto; flex-wrap: nowrap; justify-content: flex-start; }
+  .ws-color { display: none; }
+}
+
+@media (forced-colors: active) {
+  .ws-chat-input,
+  .ws-emote-btn,
+  .ws-color-toggle,
+  .ws-color-panel,
+  .ws-color-swatch { border-color: ButtonText; }
+}

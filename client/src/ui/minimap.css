@@ -1,0 +1,27 @@
+.iw-map {
+  position: fixed;
+  inset-block-start: var(--space-3);
+  inset-inline-start: var(--space-3);
+  z-index: 20;
+  width: min(var(--measure-map), calc(100vw - var(--space-6)));
+  padding: var(--space-2);
+  border: var(--border-strong) solid var(--color-border);
+  background: var(--color-surface-raised);
+  color: var(--color-fg);
+  font: var(--text-xs)/1.3 var(--font-ui);
+}
+
+.iw-map header { display: flex; justify-content: space-between; gap: var(--space-2); text-transform: uppercase; }
+.iw-map header span { color: var(--color-fg-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.iw-map canvas { display: block; width: 100%; height: auto; margin-block: var(--space-2); border: var(--border-thin) solid var(--color-border); image-rendering: pixelated; }
+.iw-map p { margin: 0; color: var(--color-fg-muted); }
+
+@media (max-width: 640px) {
+  .iw-map { inset-block-start: calc(var(--target) + var(--space-12)); inset-block-end: auto; width: var(--measure-map-compact); }
+  .iw-map p { display: none; }
+}
+
+@media (forced-colors: active) {
+  .iw-map,
+  .iw-map canvas { border-color: ButtonText; }
+}
