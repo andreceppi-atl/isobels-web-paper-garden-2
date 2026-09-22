@@ -33,6 +33,7 @@ const HANDSHAKE_RANGE = 90;
 const EMOTE_COOLDOWN_MS = 800;
 const SPIDER_RADIUS = 14;
 const BIG_RELEASE_SPEED = 9;
+const CAMERA_FOLLOW_OFFSET_Y = -160;
 
 export default class WorldScene extends Phaser.Scene {
   constructor() {
@@ -55,7 +56,14 @@ export default class WorldScene extends Phaser.Scene {
     this.residents = new WorldResidents(this, MAP);
 
     this.spider = new Spider(this, MAP.spawn.x, MAP.spawn.y);
-    this.cameras.main.startFollow(this.spider.sprite, true, 0.12, 0.12);
+    this.cameras.main.startFollow(
+      this.spider.sprite,
+      true,
+      0.12,
+      0.12,
+      0,
+      CAMERA_FOLLOW_OFFSET_Y
+    );
 
     this.wasTouching = true;
 
@@ -313,7 +321,7 @@ export default class WorldScene extends Phaser.Scene {
     this.crawl.end();
     this.matter.body.setPosition(this.spider.body, { x: waypoint.x, y: waypoint.y });
     this.matter.body.setVelocity(this.spider.body, { x: 0, y: 0 });
-    this.cameras.main.centerOn(waypoint.x, waypoint.y);
+    this.frameCameraAt(waypoint.x, waypoint.y);
     this.tricks.reset(this.time.now);
     this.popupScore(`MAP / ${waypoint.label.replace(/^\d+ \/ /, '')}`);
   }
@@ -328,7 +336,12 @@ export default class WorldScene extends Phaser.Scene {
     this.crawl.end();
     this.matter.body.setPosition(this.spider.body, nest.spawn);
     this.matter.body.setVelocity(this.spider.body, { x: 0, y: 0 });
+    this.frameCameraAt(nest.spawn.x, nest.spawn.y);
     this.popupScore('HOME WEB / ready', threadHex(home.color));
+  }
+
+  frameCameraAt(x, y) {
+    this.cameras.main.centerOn(x, y - CAMERA_FOLLOW_OFFSET_Y);
   }
 
   applyThreadColor(key) {
