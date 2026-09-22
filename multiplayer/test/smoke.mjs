@@ -3,6 +3,7 @@ import { loadMap } from '../../shared/level.js';
 import { buildNest } from '../../shared/worldWebs.js';
 
 const endpoint = process.argv[2] || 'ws://localhost:8787/ws?room=smoke-test';
+const map = loadMap(new URL(endpoint).searchParams.get('map'));
 const run = Date.now().toString(36);
 const pidA = `smoke-player-a-${run}`;
 const pidB = `smoke-player-b-${run}`;
@@ -95,7 +96,7 @@ assert.equal((await a.ask('color:set', { color: 'sky' })).ok, true);
 await coloredNest;
 console.log('stage: nest recolored');
 
-const nest = buildNest(loadMap('long-garden'), { ...initA.home, color: 'sky' });
+const nest = buildNest(map, { ...initA.home, color: 'sky' });
 const outer = nest.strands.filter((strand) => strand.id.includes('spoke-')).map((strand) => ({ x: strand.x2, y: strand.y2 }));
 await new Promise((resolve) => setTimeout(resolve, 60));
 const stateAtNest = b.event('state', (state) => state.id === initA.id && Math.abs(state.x - outer[0].x) < 1);
