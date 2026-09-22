@@ -135,6 +135,8 @@ export default class PaperWorldView {
     const followsArt = !!this.map.artPlate;
     const cx = solid.x + solid.w / 2;
     const cy = solid.y + solid.h / 2;
+    const displayHeight = solid.kind === 'floor' && !followsArt ? Math.min(solid.h, 96) : solid.h;
+    const displayY = solid.y + displayHeight / 2;
     const body = this.scene.matter.add.rectangle(cx, cy, solid.w, solid.h, {
       isStatic: true,
       label: 'solid',
@@ -142,9 +144,9 @@ export default class PaperWorldView {
     });
     const display = this.scene.add.rectangle(
       cx,
-      cy,
+      displayY,
       solid.w,
-      solid.h,
+      displayHeight,
       KIND_FILL[solid.kind] || WORLD_COLOR.linkWash,
       solid.editorBase && followsArt ? 0.04 : solid.kind === 'floor' ? 0.92 : 0.82
     )

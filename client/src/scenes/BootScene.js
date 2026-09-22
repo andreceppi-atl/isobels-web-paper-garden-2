@@ -27,6 +27,7 @@ export default class BootScene extends Phaser.Scene {
     this.load.image('paper-garden', '/art/paper-garden.png');
     this.load.image('npc-lineup', '/art/npc-character-lineup.png');
     if (MAP.artPlate) this.load.image(MAP.artPlate.texture, MAP.artPlate.source);
+    (MAP.environmentPlates || []).forEach((plate) => this.load.image(plate.texture, plate.source));
   }
 
   create() {

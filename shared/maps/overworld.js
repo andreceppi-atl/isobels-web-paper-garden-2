@@ -202,6 +202,23 @@ export default {
     nativeHeight: WORLD_HEIGHT / EDITOR_SCALE,
     scale: EDITOR_SCALE
   },
+  environmentPlates: [
+    {
+      id: 'snowfield-pixel', texture: 'snowfield-pixel-environment',
+      source: '/art/generated/snowfield-pixel-environment-v1-runtime.png',
+      x: regions[0].x, w: regions[0].w, alpha: 0.74
+    },
+    {
+      id: 'blossom-crown-pixel', texture: 'blossom-crown-pixel-environment',
+      source: '/art/generated/blossom-crown-pixel-environment-v1-runtime.png',
+      x: regions[1].x, w: regions[1].w, alpha: 0.72
+    },
+    {
+      id: 'live-web-pixel', texture: 'live-web-pixel-environment',
+      source: '/art/generated/live-web-pixel-environment-v1-runtime.png',
+      x: regions[2].x, w: regions[2].w, alpha: 0.7
+    }
+  ],
   spawn: { x: 320, y: 2110 },
   nest: { x: nestSlots[0].x, y: nestSlots[0].y },
   anchors,

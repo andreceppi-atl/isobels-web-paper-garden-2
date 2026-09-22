@@ -14,6 +14,7 @@ check('the three regions are Snowfield, Blossom Crown, and Live Web', world.regi
 check('the regions touch without loading gaps', world.regions.every((region, index) => index === 0 || world.regions[index - 1].x + world.regions[index - 1].w === region.x));
 check('the raster plate is gone and the world is a versioned procedural scaffold', !world.artPlate && world.scaffoldVersion === 2 && !!world.seed);
 check('the builder grid maps exactly onto the procedural world', world.editorGrid?.scale === 8 && world.width === world.editorGrid.nativeWidth * world.editorGrid.scale && world.height === world.editorGrid.nativeHeight * world.editorGrid.scale);
+check('the three pixel-art plates align one-to-one with the three world regions', world.environmentPlates.length === 3 && world.environmentPlates.every((plate, index) => plate.x === world.regions[index].x && plate.w === world.regions[index].w));
 check('every generated collision ledge names its visible feature', world.solids.length >= 45 && world.solids.every(({ id, feature }) => id && feature));
 check('the scaffold has distinct tangible palettes for snow, tree, page, and cards', ['snow', 'branch', 'trunk', 'page', 'card'].every((kind) => world.solids.some((solid) => solid.kind === kind)));
 check('the floor is inside the camera world instead of below it', world.groundY > world.height * 0.72 && world.groundY < world.height - 300);

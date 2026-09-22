@@ -23,12 +23,26 @@ export default class RegionBackdrop {
   build() {
     if (this.map.id !== 'overworld') return;
     this.drawPaperAndRegions();
-    this.drawSnowfield();
-    this.drawBlossomCrown();
-    this.drawLiveWeb();
+    if (this.map.environmentPlates?.length) this.drawEnvironmentPlates();
+    else {
+      this.drawSnowfield();
+      this.drawBlossomCrown();
+      this.drawLiveWeb();
+    }
     this.drawBillboards();
     this.drawEditorLayer();
     this.createParticles();
+  }
+
+  drawEnvironmentPlates() {
+    this.map.environmentPlates.forEach((plate) => {
+      this.scene.textures.get(plate.texture).setFilter(Phaser.Textures.FilterMode.NEAREST);
+      this.keep(this.scene.add.image(plate.x, 0, plate.texture)
+        .setOrigin(0, 0)
+        .setDisplaySize(plate.w, this.map.height)
+        .setAlpha(plate.alpha ?? 0.72)
+        .setDepth(-6));
+    });
   }
 
   drawPaperAndRegions() {
