@@ -71,6 +71,7 @@ export default class MiniMap {
     ctx.strokeStyle = colors.muted;
     ctx.lineWidth = 1;
     this.map.solids.forEach((solid) => {
+      if (solid.hidden) return;
       ctx.fillRect(solid.x * sx, solid.y * sy, Math.max(1, solid.w * sx), Math.max(1, solid.h * sy));
       ctx.strokeRect(solid.x * sx, solid.y * sy, Math.max(1, solid.w * sx), Math.max(1, solid.h * sy));
     });

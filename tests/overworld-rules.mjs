@@ -15,6 +15,15 @@ check('the regions touch without loading gaps', world.regions.every((region, ind
 check('the raster plate is gone and the world is a versioned procedural scaffold', !world.artPlate && world.scaffoldVersion === 2 && !!world.seed);
 check('the builder grid maps exactly onto the procedural world', world.editorGrid?.scale === 8 && world.width === world.editorGrid.nativeWidth * world.editorGrid.scale && world.height === world.editorGrid.nativeHeight * world.editorGrid.scale);
 check('the three pixel-art plates align one-to-one with the three world regions', world.environmentPlates.length === 3 && world.environmentPlates.every((plate, index) => plate.x === world.regions[index].x && plate.w === world.regions[index].w));
+const artScale = world.artRegistration?.worldScale;
+check('every visible ledge is registered from a literal pixel-art top edge', artScale === 5 && world.solids.filter(({ kind }) => kind !== 'floor').every((solid) => {
+  const region = world.regions.find(({ id }) => id === solid.region);
+  return solid.artPixel && solid.x - region.x === solid.artPixel.x * artScale &&
+    solid.y === solid.artPixel.y * artScale && solid.w === solid.artPixel.w * artScale;
+}));
+check('each painted regional ground uses its measured pixel-art surface', world.solids.filter(({ kind, hidden }) => kind === 'floor' && !hidden).every((solid) => (
+  solid.artPixel && solid.y === solid.artPixel.y * artScale && solid.w === solid.artPixel.w * artScale
+)));
 check('every generated collision ledge names its visible feature', world.solids.length >= 45 && world.solids.every(({ id, feature }) => id && feature));
 check('the scaffold has distinct tangible palettes for snow, tree, page, and cards', ['snow', 'branch', 'trunk', 'page', 'card'].every((kind) => world.solids.some((solid) => solid.kind === kind)));
 check('the floor is inside the camera world instead of below it', world.groundY > world.height * 0.72 && world.groundY < world.height - 300);

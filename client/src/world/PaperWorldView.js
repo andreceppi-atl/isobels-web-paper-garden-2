@@ -132,25 +132,29 @@ export default class PaperWorldView {
   }
 
   addSolid(solid) {
-    const followsArt = !!this.map.artPlate;
+    const followsArt = !!(this.map.artPlate || this.map.environmentPlates?.length);
     const cx = solid.x + solid.w / 2;
     const cy = solid.y + solid.h / 2;
-    const displayHeight = solid.kind === 'floor' && !followsArt ? Math.min(solid.h, 96) : solid.h;
-    const displayY = solid.y + displayHeight / 2;
     const body = this.scene.matter.add.rectangle(cx, cy, solid.w, solid.h, {
       isStatic: true,
       label: 'solid',
       friction: 0.6
     });
+    if (solid.hidden) {
+      this.solidItems.set(solid.editorId || solid, { body, display: null });
+      return;
+    }
+    const displayHeight = solid.kind === 'floor' && !followsArt ? Math.min(solid.h, 96) : solid.h;
+    const displayY = solid.y + displayHeight / 2;
     const display = this.scene.add.rectangle(
       cx,
       displayY,
       solid.w,
       displayHeight,
       KIND_FILL[solid.kind] || WORLD_COLOR.linkWash,
-      solid.editorBase && followsArt ? 0.04 : solid.kind === 'floor' ? 0.92 : 0.82
+      solid.editorBase && followsArt ? 0.025 : solid.kind === 'floor' ? 0.92 : 0.82
     )
-      .setStrokeStyle(followsArt ? 1 : 3, WORLD_COLOR.ink, solid.editorBase && followsArt ? 0.24 : 0.9)
+      .setStrokeStyle(followsArt ? 1 : 3, WORLD_COLOR.ink, solid.editorBase && followsArt ? 0.14 : 0.9)
       .setDepth(solid.editorBase ? -1 : 0);
     this.solidItems.set(solid.editorId || solid, { body, display });
     if (!followsArt) this.hatchEdge(this.hatch, solid);
@@ -159,7 +163,7 @@ export default class PaperWorldView {
   clearSolids() {
     this.solidItems.forEach(({ body, display }) => {
       this.scene.matter.world.remove(body);
-      display.destroy();
+      display?.destroy();
     });
     this.solidItems.clear();
     this.hatch?.clear();

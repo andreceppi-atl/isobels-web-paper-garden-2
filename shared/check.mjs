@@ -23,6 +23,8 @@ const resting = (a, b) => {
   const hs = a.x < b.x + b.w && b.x < a.x + a.w;
   return hs && (a.y + a.h === b.y || b.y + b.h === a.y);
 };
+const floorSeam = (a, b) => a.kind === 'floor' && b.kind === 'floor' &&
+  (a.x + a.w === b.x || b.x + b.w === a.x);
 
 for (const [id, map] of Object.entries(MAPS)) {
   const m = loadMap(id);
@@ -32,7 +34,7 @@ for (const [id, map] of Object.entries(MAPS)) {
     m.solids.forEach((b, j) => {
       if (j <= i) return;
       if (overlaps(a, b)) bad.push(`solids ${i} and ${j} overlap`);
-      else if (!resting(a, b) && rectGap(a, b) < 60) bad.push(`solids ${i} and ${j} only ${Math.round(rectGap(a, b))}px apart`);
+      else if (!resting(a, b) && !floorSeam(a, b) && rectGap(a, b) < 60) bad.push(`solids ${i} and ${j} only ${Math.round(rectGap(a, b))}px apart`);
     });
   });
   check(`map "${id}": solids in bounds, none overlapping, gaps >= 60px`, bad, []);

@@ -1,8 +1,9 @@
 const WORLD_WIDTH = 15360;
 const WORLD_HEIGHT = 2880;
 const REGION_WIDTH = WORLD_WIDTH / 3;
-const GROUND_Y = 2464;
+const GROUND_Y = 2570;
 const EDITOR_SCALE = 8;
+const ART_SCALE = 5;
 
 const regions = [
   { id: 'snowfield', type: 'snow', label: 'Snowfield', x: 0, w: REGION_WIDTH },
@@ -10,62 +11,67 @@ const regions = [
   { id: 'live-web', type: 'website', label: 'Live Web', x: REGION_WIDTH * 2, w: REGION_WIDTH }
 ];
 
-const platform = (x, y, w, kind, feature, h = 32) => ({ x, y, w, h, kind, feature });
+// Runtime plates are 1024x576 and each region is 5120x2880. Keeping the
+// collision ledges in plate pixels makes the art/physics registration explicit.
+const platformPx = (x, y, w, kind, feature, h = 32) => ({
+  x: x * ART_SCALE, y: y * ART_SCALE, w: w * ART_SCALE, h, kind, feature,
+  artPixel: { x, y, w }
+});
 
 const sectionSpecs = {
   snowfield: [
-    platform(120, 2220, 760, 'snow', 'arrival shelf', 40),
-    platform(1100, 2100, 620, 'snow', 'waterfall lip'),
-    platform(1940, 2260, 520, 'snow', 'crystal hollow'),
-    platform(2700, 2040, 680, 'snow', 'pine bridge'),
-    platform(3620, 2180, 600, 'snow', 'footstep shelf'),
-    platform(4480, 1990, 520, 'snow', 'petal approach'),
-    platform(520, 1740, 520, 'snow', 'west overlook'),
-    platform(1320, 1530, 560, 'snow', 'radio trail'),
-    platform(2170, 1690, 480, 'snow', 'frozen relay'),
-    platform(2960, 1440, 620, 'snow', 'high white pass'),
-    platform(3900, 1590, 520, 'snow', 'pine lookout'),
-    platform(4580, 1330, 420, 'snow', 'east ridge'),
-    platform(2260, 1120, 500, 'rock', 'mountain step'),
-    platform(3180, 920, 720, 'rock', 'mountain signal'),
-    platform(4320, 760, 520, 'snow', 'summit shelf')
+    platformPx(30, 449, 140, 'snow', 'arrival shelf', 40),
+    platformPx(218, 420, 122, 'snow', 'waterfall lip'),
+    platformPx(381, 452, 105, 'snow', 'crystal hollow'),
+    platformPx(550, 405, 120, 'snow', 'pine bridge'),
+    platformPx(727, 439, 122, 'snow', 'footstep shelf'),
+    platformPx(900, 391, 104, 'snow', 'petal approach'),
+    platformPx(104, 342, 104, 'snow', 'west overlook'),
+    platformPx(258, 306, 125, 'snow', 'radio trail'),
+    platformPx(434, 335, 101, 'snow', 'frozen relay'),
+    platformPx(586, 286, 124, 'snow', 'high white pass'),
+    platformPx(779, 318, 106, 'snow', 'pine lookout'),
+    platformPx(912, 259, 92, 'snow', 'east ridge'),
+    platformPx(445, 219, 114, 'rock', 'mountain step'),
+    platformPx(630, 180, 142, 'rock', 'mountain signal'),
+    platformPx(868, 150, 106, 'snow', 'summit shelf')
   ],
   'blossom-crown': [
-    platform(80, 2230, 800, 'branch', 'west roots', 40),
-    platform(1180, 2310, 680, 'branch', 'petal basin'),
-    platform(1960, 2190, 740, 'branch', 'root promenade'),
-    platform(3000, 2190, 720, 'branch', 'east roots'),
-    platform(3980, 2280, 820, 'branch', 'lantern roots'),
-    platform(4880, 2110, 240, 'branch', 'pageward root'),
-    platform(360, 1770, 700, 'branch', 'west branch'),
-    platform(1300, 1580, 620, 'branch', 'petal limb'),
-    platform(2000, 1580, 700, 'branch', 'house approach'),
-    platform(3000, 1580, 780, 'branch', 'song branch'),
-    platform(4040, 1780, 660, 'branch', 'east bough'),
-    platform(1040, 1260, 620, 'branch', 'lantern limb'),
-    platform(4060, 1280, 620, 'branch', 'canopy post'),
-    platform(2580, 1168, 540, 'branch', 'Isobel house limb'),
-    platform(2760, 1200, 180, 'trunk', 'central cherry trunk', 960),
-    platform(2100, 760, 620, 'branch', 'west crown'),
-    platform(3000, 780, 620, 'branch', 'east crown')
+    platformPx(0, 433, 157, 'branch', 'west roots', 40),
+    platformPx(196, 456, 149, 'branch', 'petal basin'),
+    platformPx(384, 423, 146, 'branch', 'root promenade'),
+    platformPx(576, 429, 162, 'branch', 'east roots'),
+    platformPx(793, 449, 154, 'branch', 'lantern roots'),
+    platformPx(981, 389, 43, 'branch', 'pageward root'),
+    platformPx(48, 326, 118, 'branch', 'west branch'),
+    platformPx(248, 291, 101, 'branch', 'petal limb'),
+    platformPx(410, 295, 122, 'branch', 'house approach'),
+    platformPx(626, 292, 134, 'branch', 'song branch'),
+    platformPx(762, 337, 179, 'branch', 'east bough'),
+    platformPx(197, 213, 127, 'branch', 'lantern limb'),
+    platformPx(827, 214, 114, 'branch', 'canopy post'),
+    platformPx(493, 218, 132, 'branch', 'Isobel house limb'),
+    platformPx(548, 224.4, 16, 'trunk', 'central cherry trunk', 1448),
+    platformPx(410, 130, 122, 'branch', 'west crown'),
+    platformPx(585, 130, 133, 'branch', 'east crown')
   ],
   'live-web': [
-    platform(80, 2240, 620, 'page', 'site threshold', 40),
-    platform(1000, 2110, 700, 'card', 'hello card'),
-    platform(1980, 2290, 560, 'page', 'archive ledge'),
-    platform(2880, 2180, 720, 'card', 'microblog floor'),
-    platform(3920, 2280, 520, 'page', 'blue-link landing'),
-    platform(4680, 2110, 360, 'page', 'paper edge'),
-    platform(320, 1740, 720, 'page', 'navigation rail'),
-    platform(1340, 1570, 680, 'card', 'message card'),
-    platform(2340, 1820, 620, 'card', 'ravine note'),
-    platform(3280, 1640, 760, 'card', 'ravine reply'),
-    platform(4340, 1820, 620, 'page', 'contact shelf'),
-    platform(120, 1120, 620, 'page', 'hello balcony'),
-    platform(1060, 930, 680, 'page', 'player shelf'),
-    platform(2080, 1180, 620, 'card', 'notes landing'),
-    platform(3060, 980, 720, 'page', 'audio shelf'),
-    platform(4120, 1200, 720, 'card', 'speech bubble')
+    platformPx(8, 443, 119, 'page', 'site threshold', 40),
+    platformPx(151, 395, 185, 'card', 'hello card'),
+    platformPx(381, 450, 95, 'page', 'archive ledge'),
+    platformPx(558, 426, 150, 'card', 'microblog floor'),
+    platformPx(736, 448, 127, 'page', 'blue-link landing'),
+    platformPx(867, 468, 148, 'page', 'paper edge'),
+    platformPx(62, 332, 121, 'page', 'navigation rail'),
+    platformPx(267, 299, 142, 'card', 'message card'),
+    platformPx(466, 352, 104, 'card', 'ravine note'),
+    platformPx(627, 311, 165, 'card', 'ravine reply'),
+    platformPx(840, 344, 174, 'page', 'contact shelf'),
+    platformPx(8, 188, 168, 'page', 'hello balcony'),
+    platformPx(223, 168, 122, 'page', 'player shelf'),
+    platformPx(416, 219, 115, 'card', 'notes landing'),
+    platformPx(618, 180, 97, 'page', 'audio shelf'),
+    platformPx(794, 217, 122, 'card', 'speech bubble')
   ]
 };
 
@@ -75,16 +81,17 @@ const sectionSolids = regions.flatMap((region) => sectionSpecs[region.id].map((s
   x: region.x + spec.x,
   region: region.id
 })));
-const floor = {
-  id: 'world-floor', x: 0, y: GROUND_Y, w: WORLD_WIDTH, h: WORLD_HEIGHT - GROUND_Y,
-  kind: 'floor', feature: 'continuous paper ground', region: 'all'
-};
-const solids = [floor, ...sectionSolids];
+const floors = [
+  { id: 'snowfield-floor', x: 0, y: 2490, w: REGION_WIDTH, h: 390, kind: 'floor', feature: 'snowfield ground', region: 'snowfield', artPixel: { x: 0, y: 498, w: 1024 } },
+  { id: 'blossom-floor', x: REGION_WIDTH, y: 2570, w: REGION_WIDTH, h: 310, kind: 'floor', feature: 'blossom ground', region: 'blossom-crown', artPixel: { x: 0, y: 514, w: 1024 } },
+  { id: 'live-web-catch', x: REGION_WIDTH * 2, y: 2760, w: REGION_WIDTH, h: 120, kind: 'floor', feature: 'hidden page catch', region: 'live-web', hidden: true }
+];
+const solids = [...floors, ...sectionSolids];
 
 const navigationPaths = [
-  [[300, 2090], [780, 1690], [1550, 1480], [2380, 1630], [3290, 1360], [3540, 850], [4680, 1260], [5060, 1840]],
-  [[5180, 2070], [5760, 1700], [6500, 1370], [7420, 1080], [7970, 650], [8700, 1080], [9500, 1420], [10120, 1960]],
-  [[10300, 2100], [10920, 1680], [11720, 1380], [12520, 1740], [13040, 1460], [13920, 1440], [14700, 1760], [15220, 2020]]
+  [[300, 2180], [780, 1660], [1550, 1450], [2380, 1620], [3290, 1380], [3540, 850], [4680, 1210], [5060, 1850]],
+  [[5180, 2110], [5760, 1580], [6500, 1400], [7420, 1040], [7970, 600], [8700, 1410], [9500, 1630], [10120, 1890]],
+  [[10300, 2160], [10920, 1610], [11720, 1440], [12520, 1710], [13040, 1500], [13920, 1670], [14700, 1030], [15220, 2290]]
 ];
 
 function pathAnchors(points) {
@@ -151,11 +158,16 @@ const staticWebs = regions.flatMap((region, regionIndex) => Array.from({ length:
   phase: regionIndex * 0.18 + index * 0.07
 })));
 
-const npcSpiders = regions.flatMap((region, regionIndex) => [0, 1, 2, 3].map((index) => ({
+const residentSpots = {
+  snowfield: [[820, 2468], [1900, 2468], [2980, 2468], [4060, 2468]],
+  'blossom-crown': [[820, 2548], [1900, 2548], [2980, 2548], [4060, 2548]],
+  'live-web': [[1000, 1953], [2100, 2228], [3050, 2108], [4000, 2218]]
+};
+const npcSpiders = regions.flatMap((region, regionIndex) => residentSpots[region.id].map(([x, y], index) => ({
   id: `${region.id}-resident-${index + 1}`,
   name: ['old spinner', 'snow thread', 'petal keeper', 'page crawler'][(regionIndex + index) % 4],
-  x: region.x + 820 + index * 1080,
-  y: GROUND_Y - 22,
+  x: region.x + x,
+  y,
   range: 70 + index * 14,
   speed: 0.0003 + index * 0.000022,
   palette: ['frost', 'amber', 'berry', 'autumn'][(regionIndex + index) % 4],
@@ -163,10 +175,10 @@ const npcSpiders = regions.flatMap((region, regionIndex) => [0, 1, 2, 3].map((in
 })));
 
 const humanoids = [
-  { id: 'snow-listener', name: 'The Listener / weather', frame: 1, x: 3490, y: 920, scale: 0.2 },
-  { id: 'isobel', name: 'Isobel / songs', frame: 0, x: 7850, y: 1168, scale: 0.23 },
-  { id: 'signal-kid', name: 'Signal Kid / maps', frame: 2, x: 11920, y: 1570, scale: 0.2 },
-  { id: 'cat-courier', name: 'Cat Courier / notes', frame: 3, x: 14000, y: 1640, scale: 0.2 }
+  { id: 'snow-listener', name: 'The Listener / weather', frame: 1, x: 3490, y: 900, scale: 0.2 },
+  { id: 'isobel', name: 'Isobel / songs', frame: 0, x: 7850, y: 1090, scale: 0.23 },
+  { id: 'signal-kid', name: 'Signal Kid / maps', frame: 2, x: 11920, y: 1495, scale: 0.2 },
+  { id: 'cat-courier', name: 'Cat Courier / notes', frame: 3, x: 14000, y: 1555, scale: 0.2 }
 ];
 
 const billboards = [
@@ -180,12 +192,12 @@ const billboards = [
 ];
 
 const waypoints = [
-  { id: 'snowfield', label: '01 / SNOWFIELD', x: 320, y: 2110 },
+  { id: 'snowfield', label: '01 / SNOWFIELD', x: 320, y: 2180 },
   { id: 'blossom-crown', label: '02 / BLOSSOM CROWN', x: 5340, y: 2110 },
-  { id: 'isobels-tree', label: "03 / ISOBEL'S TREE", x: 8090, y: 1070 },
-  { id: 'live-web', label: '04 / LIVE WEB', x: 10420, y: 2110 },
-  { id: 'microblog-ravine', label: '05 / MICROBLOG RAVINE', x: 13120, y: 1550 },
-  { id: 'paper-edge', label: '06 / PAPER EDGE', x: 15020, y: 2020 }
+  { id: 'isobels-tree', label: "03 / ISOBEL'S TREE", x: 8090, y: 1040 },
+  { id: 'live-web', label: '04 / LIVE WEB', x: 10420, y: 2160 },
+  { id: 'microblog-ravine', label: '05 / MICROBLOG RAVINE', x: 13120, y: 1500 },
+  { id: 'paper-edge', label: '06 / PAPER EDGE', x: 15020, y: 2290 }
 ];
 
 export default {
@@ -196,6 +208,7 @@ export default {
   width: WORLD_WIDTH,
   height: WORLD_HEIGHT,
   groundY: GROUND_Y,
+  artRegistration: { nativeWidth: 1024, nativeHeight: 576, worldScale: ART_SCALE },
   editorGrid: {
     texture: 'overworld-builder-layer',
     nativeWidth: WORLD_WIDTH / EDITOR_SCALE,

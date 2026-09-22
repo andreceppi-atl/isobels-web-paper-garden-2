@@ -111,7 +111,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${
   <g class="routes">${overworld.navigationPaths.map((route) => polyline(route, 'route')).join('')}</g>
   <g class="webs">${webLayer()}</g>
   <g class="nests">${entityLayer()}</g>
-  <g class="solids">${overworld.solids.map((solid) => rect(solid, `solid ${solid.kind === 'floor' ? 'floor' : ''}`)).join('')}</g>
+  <g class="solids">${overworld.solids.filter(({ hidden }) => !hidden).map((solid) => rect(solid, `solid ${solid.kind === 'floor' ? 'floor' : ''}`)).join('')}</g>
   <g class="billboards">${billboardLayer()}</g>
   <g class="labels">${labelLayer()}</g>
 </svg>`;
