@@ -24,6 +24,7 @@ import { circleContacts } from '../../../shared/geometry.js';
 import Network from '../net/Network.js';
 import PaperWorldView from '../world/PaperWorldView.js';
 import RegionBackdrop from '../world/RegionBackdrop.js';
+import WorldEditor from '../editor/WorldEditor.js';
 import { WORLD_COLOR, WORLD_CSS, WORLD_TYPE } from '../world/worldTheme.js';
 import { THREAD_COLORS, THREAD_COLOR_KEYS, DEFAULT_THREAD_COLOR, isThreadColor, threadHex } from '../../../shared/colors.js';
 import { buildNest, buildStockStrands } from '../../../shared/worldWebs.js';
@@ -47,6 +48,10 @@ export default class WorldScene extends Phaser.Scene {
   }
 
   create() {
+    this.levelEditor = new WorldEditor(this, MAP, {
+      onModeChange: (active) => this.setEditorMode(active)
+    });
+    this.levelEditor.prepare();
     this.matter.world.setBounds(0, 0, MAP.width, MAP.height, 32, true, true, false, false);
 
     this.cameras.main.setBackgroundColor(WORLD_CSS.paper);
@@ -87,6 +92,7 @@ export default class WorldScene extends Phaser.Scene {
 
     // Launch by aim: click anywhere, the spider fires toward the cursor.
     this.input.on('pointerdown', (p) => {
+      if (this.levelEditor?.active) return;
       if (this.spinTool && this.spinTool.handleClick()) {
         this.spinClickActive = true;
         return;
@@ -94,6 +100,7 @@ export default class WorldScene extends Phaser.Scene {
       this.fireAt(this.cameras.main.getWorldPoint(p.x, p.y));
     });
     this.input.on('pointerup', () => {
+      if (this.levelEditor?.active) return;
       if (this.spinClickActive) {
         this.spinClickActive = false;
         return;
@@ -105,6 +112,7 @@ export default class WorldScene extends Phaser.Scene {
     // precise aim needed. On the ground SPACE still jumps (handled in update());
     // in the air it launches instead, so the two never fight over the same press.
     this.input.keyboard.on('keydown-SPACE', () => {
+      if (this.levelEditor?.active) return;
       if (this.crawl.active) {
         this.traversal.consumeJumpInput();
         // On a thread Space jumps (like a floor); on a wall it kicks off and launches a web.
@@ -117,6 +125,7 @@ export default class WorldScene extends Phaser.Scene {
       if (!this.spider.grounded) this.fireAuto();
     });
     this.input.keyboard.on('keyup-SPACE', () => {
+      if (this.levelEditor?.active) return;
       if (this.spider.webConstraint) this.traversal.preserveReleaseMomentum();
       this.handleRelease();
     });
@@ -138,6 +147,8 @@ export default class WorldScene extends Phaser.Scene {
     this.setupNetwork();
     this.miniMap = new MiniMap(MAP);
     if (MAP.waypoints?.length) this.mapSwitcher = new MapSwitcher(MAP, (waypoint) => this.travelTo(waypoint));
+    this.levelEditor.attach(this.worldView);
+    this.miniMap.setArtCanvas(this.levelEditor.canvas);
     if (this.touchMode) {
       this.mobileControls = new MobileControls({
         onJumpDown: () => this.handleTouchJump(),
@@ -294,10 +305,11 @@ export default class WorldScene extends Phaser.Scene {
       getColor: () => threadHex(this.threadColor)
     });
 
-    this.input.keyboard.on('keydown-E', () => this.tryHandshake());
-    this.input.keyboard.on('keydown-ENTER', () => this.chatUi.focus());
-    this.input.keyboard.on('keydown-C', () => this.cycleThreadColor());
+    this.input.keyboard.on('keydown-E', () => { if (!this.levelEditor.active) this.tryHandshake(); });
+    this.input.keyboard.on('keydown-ENTER', () => { if (!this.levelEditor.active) this.chatUi.focus(); });
+    this.input.keyboard.on('keydown-C', () => { if (!this.levelEditor.active) this.cycleThreadColor(); });
     this.input.keyboard.on('keydown', (e) => {
+      if (this.levelEditor.active) return;
       const index = emoteIndexForKeyCode(e.code);
       if (index >= 0) this.sendEmote(index);
     });
@@ -311,6 +323,8 @@ export default class WorldScene extends Phaser.Scene {
       this.mapSwitcher?.destroy();
       this.comboMeter?.destroy();
       this.mobileControls?.destroy();
+      this.levelEditor?.destroy();
+      this.worldView?.destroy();
       this.nests?.destroy();
       this.residents?.destroy();
       this.atmosphere?.destroy();
@@ -344,6 +358,21 @@ export default class WorldScene extends Phaser.Scene {
 
   frameCameraAt(x, y) {
     this.cameras.main.centerOn(x, y - CAMERA_FOLLOW_OFFSET_Y);
+  }
+
+  setEditorMode(active) {
+    if (!this.spider) return;
+    document.activeElement?.blur?.();
+    this.spider.releaseWeb();
+    this.crawl?.end();
+    this.matter.body.setVelocity(this.spider.body, { x: 0, y: 0 });
+    this.matter.body.setStatic(this.spider.body, active);
+    if (active) {
+      this.cameras.main.stopFollow();
+      this.hudText?.setText('BUILD MODE / LOCAL DRAFT');
+    } else {
+      this.cameras.main.startFollow(this.spider.sprite, false, 0.12, 0.12, 0, CAMERA_FOLLOW_OFFSET_Y);
+    }
   }
 
   applyThreadColor(key) {
@@ -503,6 +532,7 @@ export default class WorldScene extends Phaser.Scene {
   }
 
   readInput() {
+    if (this.levelEditor?.active) return { left: false, right: false, up: false, down: false, jump: false };
     const touch = this.mobileControls?.state || {};
     return {
       left: this.cursors.left.isDown || this.keys.A.isDown || touch.left,
@@ -574,6 +604,7 @@ export default class WorldScene extends Phaser.Scene {
   }
 
   update(time, delta) {
+    this.levelEditor?.update(delta);
     const body = this.spider.body;
     const input = this.readInput();
 
@@ -655,16 +686,17 @@ export default class WorldScene extends Phaser.Scene {
     this.mapSwitcher?.update(time, body.position);
     this.comboMeter?.update(this.tricks.snapshot(time));
 
-    this.hudText.setText(
-      `${movement.state.toUpperCase()} / SPEED ${speed.toFixed(1)}\n` +
-      `${this.online ? `${this.remotes.size + 1} SPIDERS / ${this.linkedOnline.size} CONNECTED` : 'SOLO / RECONNECTING'}`
-    );
+    this.hudText.setText(this.levelEditor?.active
+      ? 'BUILD MODE / LOCAL DRAFT\nWASD PAN / WHEEL ZOOM'
+      : `${movement.state.toUpperCase()} / SPEED ${speed.toFixed(1)}\n` +
+        `${this.online ? `${this.remotes.size + 1} SPIDERS / ${this.linkedOnline.size} CONNECTED` : 'SOLO / RECONNECTING'}`);
   }
 
   // A faint ring where your web would land if you clicked now.
   updateAimMarker() {
     const g = this.aimMarker;
     g.clear();
+    if (this.levelEditor?.active) return;
     if (this.spider.webConstraint || this.spinTool.shift.isDown) return;
     const pointer = this.input.activePointer;
     const world = this.cameras.main.getWorldPoint(pointer.x, pointer.y);

@@ -17,6 +17,7 @@ export default class PaperWorldView {
     this.scene = scene;
     this.map = map;
     this.anchors = anchors;
+    this.solidItems = new Map();
   }
 
   build() {
@@ -127,28 +128,45 @@ export default class PaperWorldView {
   }
 
   addSolids() {
-    const hatch = this.scene.add.graphics().setDepth(0);
+    this.hatch = this.scene.add.graphics().setDepth(0);
+    this.map.solids.forEach((solid) => this.addSolid(solid));
+  }
+
+  addSolid(solid) {
     const followsArt = !!this.map.artPlate;
-    this.map.solids.forEach((solid) => {
-      const cx = solid.x + solid.w / 2;
-      const cy = solid.y + solid.h / 2;
-      this.scene.matter.add.rectangle(cx, cy, solid.w, solid.h, {
-        isStatic: true,
-        label: 'solid',
-        friction: 0.6
-      });
-      this.scene.add.rectangle(
-        cx,
-        cy,
-        solid.w,
-        solid.h,
-        KIND_FILL[solid.kind] || WORLD_COLOR.paper,
-        followsArt ? 0.04 : 1
-      )
-        .setStrokeStyle(followsArt ? 1 : 2, WORLD_COLOR.ink, followsArt ? 0.24 : 0.88)
-        .setDepth(-1);
-      if (!followsArt) this.hatchEdge(hatch, solid);
+    const cx = solid.x + solid.w / 2;
+    const cy = solid.y + solid.h / 2;
+    const body = this.scene.matter.add.rectangle(cx, cy, solid.w, solid.h, {
+      isStatic: true,
+      label: 'solid',
+      friction: 0.6
     });
+    const display = this.scene.add.rectangle(
+      cx,
+      cy,
+      solid.w,
+      solid.h,
+      KIND_FILL[solid.kind] || WORLD_COLOR.linkWash,
+      solid.editorBase && followsArt ? 0.04 : 0.2
+    )
+      .setStrokeStyle(followsArt ? 1 : 2, WORLD_COLOR.ink, solid.editorBase && followsArt ? 0.24 : 0.72)
+      .setDepth(solid.editorBase ? -1 : 0);
+    this.solidItems.set(solid.editorId || solid, { body, display });
+    if (!followsArt) this.hatchEdge(this.hatch, solid);
+  }
+
+  clearSolids() {
+    this.solidItems.forEach(({ body, display }) => {
+      this.scene.matter.world.remove(body);
+      display.destroy();
+    });
+    this.solidItems.clear();
+    this.hatch?.clear();
+  }
+
+  syncSolids(solids) {
+    this.clearSolids();
+    solids.forEach((solid) => this.addSolid(solid));
   }
 
   hatchEdge(graphics, solid) {
@@ -207,5 +225,10 @@ export default class PaperWorldView {
       fontSize: '9px',
       color: WORLD_CSS.inkSoft
     }).setOrigin(0.5).setDepth(0);
+  }
+
+  destroy() {
+    this.clearSolids();
+    this.hatch?.destroy();
   }
 }

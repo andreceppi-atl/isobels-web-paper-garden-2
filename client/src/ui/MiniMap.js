@@ -15,6 +15,7 @@ export default class MiniMap {
     this.lastDraw = 0;
     this.artReady = false;
     this.artImage = null;
+    this.artCanvas = null;
     if (map.artPlate) {
       this.artImage = new Image();
       this.artImage.onload = () => { this.artReady = true; };
@@ -46,6 +47,11 @@ export default class MiniMap {
     this.draw(state);
   }
 
+  setArtCanvas(canvas) {
+    this.artCanvas = canvas || null;
+    if (canvas) this.artReady = true;
+  }
+
   draw({ player, remotes, strands, camera }) {
     const ctx = this.canvas.getContext('2d');
     const colors = getColors();
@@ -57,7 +63,7 @@ export default class MiniMap {
     if (this.artReady) {
       ctx.globalAlpha = 0.92;
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(this.artImage, 0, 0, this.canvas.width, this.canvas.height);
+      ctx.drawImage(this.artCanvas || this.artImage, 0, 0, this.canvas.width, this.canvas.height);
       ctx.globalAlpha = 1;
     }
 

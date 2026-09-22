@@ -8,6 +8,7 @@ import './ui/minimap.css';
 import './ui/combo.css';
 import './ui/touch.css';
 import './ui/social.css';
+import './ui/world-editor.css';
 import { WORLD_CSS } from './world/worldTheme.js';
 
 const config = {

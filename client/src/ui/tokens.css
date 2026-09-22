@@ -31,12 +31,14 @@
   --measure-controls: 32rem;
   --measure-map: 16.5rem;
   --measure-map-compact: 11rem;
+  --measure-editor: 19rem;
   --radius-full: 9999px;
   --border-thin: 1px;
   --border-strong: 2px;
   --duration-fast: 150ms;
   --ease-out: cubic-bezier(0.2, 0, 0, 1);
   --shadow-focus: 0 0 0 2px var(--color-bg), 0 0 0 5px var(--color-focus-ring);
+  --shadow-offset: 6px 6px 0 var(--color-border);
   --thread-silk: #25231f;
   --thread-gold: #7a5e00;
   --thread-amber: #925000;

@@ -54,6 +54,8 @@ echo "== Long Garden + home web model"
 node tests/world-webs.mjs || FAILED+=("Long Garden + home web model")
 echo "== massive Overworld rules"
 node tests/overworld-rules.mjs || FAILED+=("massive Overworld rules")
+echo "== world builder patch model"
+node tests/editor-patch.mjs || FAILED+=("world builder patch model")
 
 run_test "handshake rules"          ""                                                                tests/handshake-rules.mjs
 run_test "chat rules"               ""                                                                tests/chat-rules.mjs

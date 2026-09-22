@@ -95,7 +95,7 @@ export default class SpinTool {
     this.preview.clear();
     this.label.setVisible(false);
     this.current = null;
-    if (!this.shift.isDown) return;
+    if (this.scene.levelEditor?.active || !this.shift.isDown) return;
 
     const spider = this.scene.spider;
     const base = this.base();
@@ -151,6 +151,7 @@ export default class SpinTool {
   }
 
   autoSpin() {
+    if (this.scene.levelEditor?.active) return;
     const base = this.base();
     if (!base) return this.notify('grab a web or touch a surface first');
 
@@ -180,6 +181,7 @@ export default class SpinTool {
   }
 
   reinforce() {
+    if (this.scene.levelEditor?.active) return;
     const now = this.scene.time.now;
     if (this.pending || now - this.lastAction < COOLDOWN_MS) return;
 

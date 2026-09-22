@@ -48,7 +48,7 @@ export default class RegionBackdrop {
   }
 
   drawConceptPlate() {
-    const { texture } = this.map.artPlate;
+    const texture = this.map.artPlate.runtimeTexture || this.map.artPlate.texture;
     const source = this.scene.textures.get(texture);
     source.setFilter(Phaser.Textures.FilterMode.NEAREST);
     this.keep(this.scene.add.image(0, 0, texture)

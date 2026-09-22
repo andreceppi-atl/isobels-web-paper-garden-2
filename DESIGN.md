@@ -134,6 +134,10 @@ A lost monochrome social cartridge: a mostly blank paper-world inside compact ha
 - lg (dimension): {space.4}
 ```
 
+```tokens measure
+- editor (dimension): 19rem
+```
+
 Use logical properties such as `padding-inline`, `margin-block`, and `inset-inline-start`.
 
 ## 5. Radius & Shape
