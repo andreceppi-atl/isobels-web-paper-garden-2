@@ -29,6 +29,7 @@ export default class PaperWorldView {
   }
 
   addPaperGrain() {
+    if (this.map.artPlate) return;
     if (!this.scene.textures.exists('paper-garden')) return;
     const imageWidth = 1774;
     for (let x = 0; x < this.map.width + imageWidth; x += imageWidth - 80) {
@@ -41,12 +42,14 @@ export default class PaperWorldView {
 
   addRoomGuides() {
     const g = this.scene.add.graphics().setDepth(-2);
-    for (let y = 260; y < this.map.height; y += 220) {
-      g.lineStyle(1, WORLD_COLOR.inkFaint, 0.14);
-      g.lineBetween(0, y, this.map.width, y);
+    if (!this.map.artPlate) {
+      for (let y = 260; y < this.map.height; y += 220) {
+        g.lineStyle(1, WORLD_COLOR.inkFaint, 0.14);
+        g.lineBetween(0, y, this.map.width, y);
+      }
     }
     (this.map.rooms || []).forEach((room, index) => {
-      if (index > 0) {
+      if (index > 0 && !this.map.artPlate) {
         g.lineStyle(1, WORLD_COLOR.inkSoft, 0.26);
         g.lineBetween(room.x, 150, room.x, this.map.height - 170);
       }
@@ -125,6 +128,7 @@ export default class PaperWorldView {
 
   addSolids() {
     const hatch = this.scene.add.graphics().setDepth(0);
+    const followsArt = !!this.map.artPlate;
     this.map.solids.forEach((solid) => {
       const cx = solid.x + solid.w / 2;
       const cy = solid.y + solid.h / 2;
@@ -133,10 +137,17 @@ export default class PaperWorldView {
         label: 'solid',
         friction: 0.6
       });
-      this.scene.add.rectangle(cx, cy, solid.w, solid.h, KIND_FILL[solid.kind] || WORLD_COLOR.paper)
-        .setStrokeStyle(2, WORLD_COLOR.ink, 0.88)
+      this.scene.add.rectangle(
+        cx,
+        cy,
+        solid.w,
+        solid.h,
+        KIND_FILL[solid.kind] || WORLD_COLOR.paper,
+        followsArt ? 0.04 : 1
+      )
+        .setStrokeStyle(followsArt ? 1 : 2, WORLD_COLOR.ink, followsArt ? 0.24 : 0.88)
         .setDepth(-1);
-      this.hatchEdge(hatch, solid);
+      if (!followsArt) this.hatchEdge(hatch, solid);
     });
   }
 
@@ -173,6 +184,7 @@ export default class PaperWorldView {
   addAnchors() {
     this.map.anchors.forEach((anchor) => {
       this.anchors.push({ x: anchor.x, y: anchor.y });
+      if (anchor.visible === false) return;
       this.scene.add.circle(anchor.x, anchor.y, 9, WORLD_COLOR.paper, 0.9)
         .setStrokeStyle(2, WORLD_COLOR.ink)
         .setDepth(0);

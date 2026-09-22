@@ -34,6 +34,7 @@ const EMOTE_COOLDOWN_MS = 800;
 const SPIDER_RADIUS = 14;
 const BIG_RELEASE_SPEED = 9;
 const CAMERA_FOLLOW_OFFSET_Y = -160;
+const CAMERA_ZOOM = 0.55;
 
 export default class WorldScene extends Phaser.Scene {
   constructor() {
@@ -50,6 +51,7 @@ export default class WorldScene extends Phaser.Scene {
 
     this.cameras.main.setBackgroundColor(WORLD_CSS.paper);
     this.cameras.main.setBounds(0, 0, MAP.width, MAP.height);
+    this.cameras.main.setZoom(CAMERA_ZOOM);
 
     this.anchors = [];
     this.buildLevel();
@@ -58,7 +60,7 @@ export default class WorldScene extends Phaser.Scene {
     this.spider = new Spider(this, MAP.spawn.x, MAP.spawn.y);
     this.cameras.main.startFollow(
       this.spider.sprite,
-      true,
+      false,
       0.12,
       0.12,
       0,

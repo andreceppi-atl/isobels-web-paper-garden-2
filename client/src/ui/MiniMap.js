@@ -13,6 +13,13 @@ export default class MiniMap {
   constructor(map) {
     this.map = map;
     this.lastDraw = 0;
+    this.artReady = false;
+    this.artImage = null;
+    if (map.artPlate) {
+      this.artImage = new Image();
+      this.artImage.onload = () => { this.artReady = true; };
+      this.artImage.src = map.artPlate.source;
+    }
     this.root = document.createElement('aside');
     this.root.className = 'iw-map';
     this.root.setAttribute('aria-label', `${map.name} minimap`);
@@ -47,6 +54,12 @@ export default class MiniMap {
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     ctx.fillStyle = colors.paper;
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    if (this.artReady) {
+      ctx.globalAlpha = 0.92;
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(this.artImage, 0, 0, this.canvas.width, this.canvas.height);
+      ctx.globalAlpha = 1;
+    }
 
     ctx.fillStyle = colors.surface;
     ctx.strokeStyle = colors.muted;
@@ -69,7 +82,12 @@ export default class MiniMap {
 
     ctx.strokeStyle = colors.border;
     ctx.setLineDash([4, 3]);
-    ctx.strokeRect(camera.scrollX * sx, camera.scrollY * sy, camera.width * sx, camera.height * sy);
+    ctx.strokeRect(
+      camera.worldView.x * sx,
+      camera.worldView.y * sy,
+      camera.worldView.width * sx,
+      camera.worldView.height * sy
+    );
     ctx.setLineDash([]);
 
     remotes.forEach((remote) => {
@@ -85,6 +103,7 @@ export default class MiniMap {
   }
 
   destroy() {
+    if (this.artImage) this.artImage.onload = null;
     this.root.remove();
   }
 }

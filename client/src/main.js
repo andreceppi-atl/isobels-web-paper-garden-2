@@ -15,6 +15,7 @@ const config = {
   parent: 'app',
   width: 960,
   height: 540,
+  pixelArt: true,
   backgroundColor: WORLD_CSS.paper,
   physics: {
     default: 'matter',

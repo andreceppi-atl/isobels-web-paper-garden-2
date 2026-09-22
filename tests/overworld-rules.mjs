@@ -1,17 +1,20 @@
 import { DEFAULT_MAP_ID, loadMap } from '../shared/level.js';
 import { buildNest, buildStockStrands } from '../shared/worldWebs.js';
 
-const original = loadMap('long-garden');
+const original = loadMap('canopy');
 const world = loadMap();
 const results = [];
 const check = (label, value) => results.push(`${value ? 'PASS' : 'FAIL'}  ${label}`);
 
 check('the Overworld is the default public map', DEFAULT_MAP_ID === 'overworld' && world.id === 'overworld');
-check('the Overworld is at least three times wider than the original playground', world.width >= original.width * 3);
-check('the Overworld is at least three times taller than the original playground', world.height >= original.height * 3);
+check('the Overworld is at least three times wider than the original physics playground', world.width >= original.width * 3);
+check('the Overworld is at least three times taller than the original physics playground', world.height >= original.height * 3);
 check('the Overworld is one continuous three-region level', world.regions.length === 3 && world.rooms.length === 3);
 check('the three regions are Snowfield, Blossom Crown, and Live Web', world.regions.map(({ id }) => id).join(',') === 'snowfield,blossom-crown,live-web');
 check('the regions touch without loading gaps', world.regions.every((region, index) => index === 0 || world.regions[index - 1].x + world.regions[index - 1].w === region.x));
+check('the world preserves the pixel-art plate without stretching either axis', world.artPlate?.scale === 8 && world.width === world.artPlate.nativeWidth * world.artPlate.scale && world.height === world.artPlate.nativeHeight * world.artPlate.scale);
+check('waypoints retain exact source-art coordinates', world.waypoints.every(({ x, y, artX, artY }) => x === artX * world.artPlate.scale && y === artY * world.artPlate.scale));
+check('collision ledges name the artwork feature they trace', world.solids.filter(({ feature }) => feature).length >= 30);
 check('the Microblog Ravine is a landmark inside the Live Web', world.waypoints.some(({ id, x }) => id === 'microblog-ravine' && x >= world.regions[2].x));
 check('Isobel lives at the central cherry tree', world.humanoids.some(({ id, x }) => id === 'isobel' && x > world.regions[1].x && x < world.regions[1].x + world.regions[1].w));
 check('the world includes at least six natural billboard frames', world.billboards.length >= 6);

@@ -1,6 +1,6 @@
+import Phaser from 'phaser';
 import { WORLD_COLOR, WORLD_CSS, WORLD_TYPE } from './worldTheme.js';
 
-const REGION = 25600;
 const TAU = Math.PI * 2;
 
 function mixColor(a, b, t) {
@@ -19,6 +19,7 @@ export default class RegionBackdrop {
   constructor(scene, map) {
     this.scene = scene;
     this.map = map;
+    this.regionWidth = map.regions?.[0]?.w || map.width / 3;
     this.objects = [];
     this.particles = [];
     this.footprints = [];
@@ -34,6 +35,11 @@ export default class RegionBackdrop {
   build() {
     if (this.map.id !== 'overworld') return;
     this.drawRegionWashes();
+    if (this.map.artPlate) {
+      this.drawConceptPlate();
+      this.createParticles();
+      return;
+    }
     this.drawSnowfield();
     this.drawBlossomCrown();
     this.drawLiveWeb();
@@ -41,14 +47,24 @@ export default class RegionBackdrop {
     this.createParticles();
   }
 
+  drawConceptPlate() {
+    const { texture } = this.map.artPlate;
+    const source = this.scene.textures.get(texture);
+    source.setFilter(Phaser.Textures.FilterMode.NEAREST);
+    this.keep(this.scene.add.image(0, 0, texture)
+      .setOrigin(0, 0)
+      .setDisplaySize(this.map.width, this.map.height)
+      .setDepth(-5));
+  }
+
   drawRegionWashes() {
     const g = this.keep(this.scene.add.graphics().setDepth(-6));
     const tones = [WORLD_COLOR.ice, WORLD_COLOR.blossom, WORLD_COLOR.linkWash];
     tones.forEach((tone, index) => {
       g.fillStyle(tone, 0.25);
-      g.fillRect(index * REGION, 0, REGION, this.map.height);
+      g.fillRect(index * this.regionWidth, 0, this.regionWidth, this.map.height);
     });
-    [REGION, REGION * 2].forEach((edge, boundary) => {
+    [this.regionWidth, this.regionWidth * 2].forEach((edge, boundary) => {
       const left = tones[boundary];
       const right = tones[boundary + 1];
       for (let strip = 0; strip < 24; strip += 1) {
@@ -61,19 +77,19 @@ export default class RegionBackdrop {
   drawSnowfield() {
     const far = this.keep(this.scene.add.graphics().setDepth(-5));
     far.fillStyle(WORLD_COLOR.paperDeep, 0.84);
-    for (let x = -400; x < REGION + 900; x += 1800) {
+    for (let x = -400; x < this.regionWidth + 900; x += 1800) {
       const peak = 650 + ((x / 1800) % 3) * 240;
       far.fillTriangle(x, 3350, x + 900, peak, x + 1900, 3350);
     }
     far.lineStyle(2, WORLD_COLOR.inkSoft, 0.3);
-    for (let x = -400; x < REGION + 900; x += 1800) {
+    for (let x = -400; x < this.regionWidth + 900; x += 1800) {
       const peak = 650 + ((x / 1800) % 3) * 240;
       far.lineBetween(x, 3350, x + 900, peak);
       far.lineBetween(x + 900, peak, x + 1900, 3350);
     }
 
     const trees = this.keep(this.scene.add.graphics().setDepth(-3));
-    for (let x = 240; x < REGION - 200; x += 520) {
+    for (let x = 240; x < this.regionWidth - 200; x += 520) {
       const size = 110 + ((x / 520) % 4) * 26;
       const y = 7020 - ((x / 520) % 3) * 45;
       trees.lineStyle(2, WORLD_COLOR.ink, 0.52);
@@ -86,7 +102,7 @@ export default class RegionBackdrop {
 
   drawBlossomCrown() {
     const g = this.keep(this.scene.add.graphics().setDepth(-4));
-    const cx = REGION * 1.5;
+    const cx = this.regionWidth * 1.5;
     g.fillStyle(WORLD_COLOR.ink, 0.9);
     g.beginPath();
     g.moveTo(cx - 350, 7420);
@@ -134,7 +150,7 @@ export default class RegionBackdrop {
 
   drawLiveWeb() {
     const g = this.keep(this.scene.add.graphics().setDepth(-4));
-    const start = REGION * 2;
+    const start = this.regionWidth * 2;
     g.lineStyle(3, WORLD_COLOR.linkBlue, 0.54);
     g.fillStyle(WORLD_COLOR.paper, 0.82);
     for (let index = 0; index < 10; index += 1) {
@@ -208,9 +224,10 @@ export default class RegionBackdrop {
       object.setDepth(-1);
       this.particles.push({ object, type, baseX: x, baseY: y, speed, drift, phase: x * 0.0017 });
     };
-    for (let i = 0; i < 90; i += 1) add('snow', (i * 887) % REGION, (i * 317) % 7200, 3 + (i % 4), 0.016 + (i % 3) * 0.004, 18 + (i % 5) * 6);
-    for (let i = 0; i < 86; i += 1) add('petal', REGION + (i * 733) % REGION, (i * 281) % 7100, 4 + (i % 3), 0.011 + (i % 4) * 0.003, 30 + (i % 6) * 7);
-    for (let i = 0; i < 58; i += 1) add('paper', REGION * 2 + (i * 991) % REGION, (i * 367) % 7000, 5 + (i % 4), 0.008 + (i % 3) * 0.002, 42 + (i % 4) * 8);
+    const height = this.map.height - 100;
+    for (let i = 0; i < 90; i += 1) add('snow', (i * 887) % this.regionWidth, (i * 317) % height, 3 + (i % 4), 0.016 + (i % 3) * 0.004, 18 + (i % 5) * 6);
+    for (let i = 0; i < 86; i += 1) add('petal', this.regionWidth + (i * 733) % this.regionWidth, (i * 281) % height, 4 + (i % 3), 0.011 + (i % 4) * 0.003, 30 + (i % 6) * 7);
+    for (let i = 0; i < 58; i += 1) add('paper', this.regionWidth * 2 + (i * 991) % this.regionWidth, (i * 367) % height, 5 + (i % 4), 0.008 + (i % 3) * 0.002, 42 + (i % 4) * 8);
   }
 
   stampFootprint(now, player) {
@@ -229,13 +246,13 @@ export default class RegionBackdrop {
   update(time, player) {
     if (!this.reducedMotion) {
       this.particles.forEach((particle) => {
-        const range = particle.type === 'snow' ? 7200 : 7000;
+        const range = this.map.height - 100;
         particle.object.y = (particle.baseY + time * particle.speed) % range;
         particle.object.x = particle.baseX + Math.sin(time * 0.0005 + particle.phase) * particle.drift;
         if (particle.type === 'paper') particle.object.rotation = Math.sin(time * 0.0007 + particle.phase) * 0.5;
       });
     }
-    if (player?.grounded && player.x < REGION && Math.abs(player.vx) > 1.4) this.stampFootprint(time, player);
+    if (player?.grounded && player.x < this.regionWidth && Math.abs(player.vx) > 1.4) this.stampFootprint(time, player);
     this.footprints.forEach((print) => print.object.setAlpha(Math.max(0, 1 - (time - print.born) / 18000)));
     while (this.footprints[0] && time - this.footprints[0].born > 18000) this.footprints.shift().object.destroy();
   }
