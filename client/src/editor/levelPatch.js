@@ -1,9 +1,11 @@
-const PATCH_VERSION = 1;
+const PATCH_VERSION = 2;
 const GRAPHIC_MODES = new Set(['paint', 'erase']);
 const GRAPHIC_COLORS = new Set(['ink', 'paper', 'petal', 'link']);
 const BRUSH_SIZES = new Set([1, 2, 4, 8]);
 
-export const LEVEL_PATCH_KEY = 'isobels_web_level_patch_v1';
+export const LEVEL_PATCH_KEY = 'isobels_web_level_patch_v2';
+
+const editingGrid = (map) => map.artPlate || map.editorGrid;
 
 export function blankPatch(mapId) {
   return {
@@ -33,17 +35,17 @@ function number(value, fallback = 0) {
   return Number.isFinite(Number(value)) ? Number(value) : fallback;
 }
 
-function normalizePoint(point, artPlate) {
+function normalizePoint(point, grid) {
   if (!Array.isArray(point) || point.length < 2) return null;
   const x = Math.round(number(point[0]));
   const y = Math.round(number(point[1]));
-  if (x < 0 || y < 0 || x >= artPlate.nativeWidth || y >= artPlate.nativeHeight) return null;
+  if (x < 0 || y < 0 || x >= grid.nativeWidth || y >= grid.nativeHeight) return null;
   return [x, y];
 }
 
 function normalizeStroke(stroke, map) {
   if (!stroke || !GRAPHIC_MODES.has(stroke.mode)) return null;
-  const points = (stroke.points || []).map((point) => normalizePoint(point, map.artPlate)).filter(Boolean);
+  const points = (stroke.points || []).map((point) => normalizePoint(point, editingGrid(map))).filter(Boolean);
   if (!points.length) return null;
   return {
     id: typeof stroke.id === 'string' ? stroke.id : makeEditorId('stroke'),
@@ -56,10 +58,11 @@ function normalizeStroke(stroke, map) {
 
 function normalizeSolid(solid, map) {
   if (!solid) return null;
+  const grid = editingGrid(map);
   const x = Math.max(0, Math.round(number(solid.x)));
   const y = Math.max(0, Math.round(number(solid.y)));
-  const w = Math.max(map.artPlate.scale, Math.round(number(solid.w, map.artPlate.scale)));
-  const h = Math.max(map.artPlate.scale, Math.round(number(solid.h, map.artPlate.scale)));
+  const w = Math.max(grid.scale, Math.round(number(solid.w, grid.scale)));
+  const h = Math.max(grid.scale, Math.round(number(solid.h, grid.scale)));
   if (x >= map.width || y >= map.height) return null;
   return {
     id: typeof solid.id === 'string' ? solid.id : makeEditorId('solid'),

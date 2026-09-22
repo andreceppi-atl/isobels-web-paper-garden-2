@@ -12,13 +12,14 @@ export default class EditorArtSurface {
   }
 
   prepare(strokes) {
-    if (!this.map.artPlate) return;
-    const key = `editor-${this.map.artPlate.texture}`;
+    const grid = this.map.artPlate || this.map.editorGrid;
+    if (!grid) return;
+    const key = `editor-${grid.texture}`;
     if (this.scene.textures.exists(key)) this.scene.textures.remove(key);
-    this.texture = this.scene.textures.createCanvas(key, this.map.artPlate.nativeWidth, this.map.artPlate.nativeHeight);
+    this.texture = this.scene.textures.createCanvas(key, grid.nativeWidth, grid.nativeHeight);
     this.canvas = this.texture.getSourceImage();
     this.context = this.texture.context;
-    this.map.artPlate.runtimeTexture = key;
+    grid.runtimeTexture = key;
     this.redraw(strokes);
   }
 
@@ -50,10 +51,12 @@ export default class EditorArtSurface {
 
   redraw(strokes) {
     if (!this.context) return;
-    const source = this.scene.textures.get(this.map.artPlate.texture).getSourceImage();
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.imageSmoothingEnabled = false;
-    this.context.drawImage(source, 0, 0);
+    if (this.map.artPlate) {
+      const source = this.scene.textures.get(this.map.artPlate.texture).getSourceImage();
+      this.context.drawImage(source, 0, 0);
+    }
     strokes.forEach((stroke) => this.drawStroke(stroke));
     this.texture.refresh();
   }

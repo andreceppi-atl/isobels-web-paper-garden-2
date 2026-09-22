@@ -9,7 +9,8 @@ const KIND_FILL = Object.freeze({
   branch: WORLD_COLOR.blossom,
   trunk: WORLD_COLOR.blossom,
   page: WORLD_COLOR.linkWash,
-  card: WORLD_COLOR.paper
+  card: WORLD_COLOR.paper,
+  editor: WORLD_COLOR.linkWash
 });
 
 export default class PaperWorldView {
@@ -31,13 +32,11 @@ export default class PaperWorldView {
 
   addPaperGrain() {
     if (this.map.artPlate) return;
-    if (!this.scene.textures.exists('paper-garden')) return;
-    const imageWidth = 1774;
-    for (let x = 0; x < this.map.width + imageWidth; x += imageWidth - 80) {
-      this.scene.add.image(x, 110, 'paper-garden')
-        .setOrigin(0, 0)
-        .setAlpha(0.14)
-        .setDepth(-4);
+    const grain = this.scene.add.graphics().setDepth(-7);
+    grain.lineStyle(1, WORLD_COLOR.inkFaint, 0.06);
+    for (let x = 46; x < this.map.width; x += 164) {
+      const y = 70 + ((x * 37) % Math.max(200, this.map.height - 140));
+      grain.lineBetween(x, y, x + 16, y);
     }
   }
 
@@ -147,9 +146,9 @@ export default class PaperWorldView {
       solid.w,
       solid.h,
       KIND_FILL[solid.kind] || WORLD_COLOR.linkWash,
-      solid.editorBase && followsArt ? 0.04 : 0.2
+      solid.editorBase && followsArt ? 0.04 : solid.kind === 'floor' ? 0.92 : 0.82
     )
-      .setStrokeStyle(followsArt ? 1 : 2, WORLD_COLOR.ink, solid.editorBase && followsArt ? 0.24 : 0.72)
+      .setStrokeStyle(followsArt ? 1 : 3, WORLD_COLOR.ink, solid.editorBase && followsArt ? 0.24 : 0.9)
       .setDepth(solid.editorBase ? -1 : 0);
     this.solidItems.set(solid.editorId || solid, { body, display });
     if (!followsArt) this.hatchEdge(this.hatch, solid);
@@ -180,6 +179,8 @@ export default class PaperWorldView {
         graphics.lineBetween(solid.x + 8, y, solid.x + solid.w - 8, y);
       }
     }
+    graphics.lineStyle(solid.kind === 'floor' ? 4 : 3, WORLD_COLOR.ink, 0.82);
+    graphics.lineBetween(solid.x, solid.y, solid.x + solid.w, solid.y);
   }
 
   addLandmarks() {

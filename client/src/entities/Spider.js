@@ -4,6 +4,7 @@ import { WORLD_COLOR } from '../world/worldTheme.js';
 
 const ROPE_STIFFNESS = 0.32;
 const ROPE_DAMPING = 0.16;
+const VISUAL_SCALE = 1.2;
 
 export default class Spider {
   constructor(scene, x, y, palette = randomPalette()) {
@@ -19,7 +20,7 @@ export default class Spider {
     });
 
     const key = ensureSpiderTexture(scene, palette, this.pose);
-    this.sprite = scene.add.sprite(x, y, key);
+    this.sprite = scene.add.sprite(x, y, key).setScale(VISUAL_SCALE);
 
     this.grounded = false;
     this.facing = 1;

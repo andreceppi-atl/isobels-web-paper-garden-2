@@ -17,6 +17,7 @@ const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 1.25;
 const clone = (value) => JSON.parse(JSON.stringify(value));
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+const editingGrid = (map) => map.artPlate || map.editorGrid;
 
 export default class WorldEditor {
   constructor(scene, map, { onModeChange } = {}) {
@@ -90,10 +91,11 @@ export default class WorldEditor {
   }
 
   artPoint(world) {
-    const scale = this.map.artPlate.scale;
+    const grid = editingGrid(this.map);
+    const scale = grid.scale;
     return {
-      x: clamp(Math.round(world.x / scale), 0, this.map.artPlate.nativeWidth - 1),
-      y: clamp(Math.round(world.y / scale), 0, this.map.artPlate.nativeHeight - 1)
+      x: clamp(Math.round(world.x / scale), 0, grid.nativeWidth - 1),
+      y: clamp(Math.round(world.y / scale), 0, grid.nativeHeight - 1)
     };
   }
 
@@ -148,12 +150,12 @@ export default class WorldEditor {
   }
 
   snapWorld(point) {
-    const grid = this.map.artPlate.scale;
+    const grid = editingGrid(this.map).scale;
     return { x: Math.round(point.x / grid) * grid, y: Math.round(point.y / grid) * grid };
   }
 
   makeSolid(start, end) {
-    const thickness = this.size * this.map.artPlate.scale;
+    const thickness = this.size * editingGrid(this.map).scale;
     const horizontal = Math.abs(end.x - start.x) >= Math.abs(end.y - start.y);
     const x = horizontal ? Math.min(start.x, end.x) : start.x - thickness / 2;
     const y = horizontal ? start.y - thickness / 2 : Math.min(start.y, end.y);
@@ -171,7 +173,7 @@ export default class WorldEditor {
   }
 
   eraseSolid(point) {
-    const solid = findSolidAt(this.map.solids, point, this.map.artPlate.scale * 3);
+    const solid = findSolidAt(this.map.solids, point, editingGrid(this.map).scale * 3);
     if (!solid) return this.panel.setStatus('NOTHING TANGIBLE HERE');
     this.pushHistory();
     if (solid.editorBase) this.patch.hiddenSolidIds.push(solid.editorId);

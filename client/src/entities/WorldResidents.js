@@ -25,7 +25,7 @@ class SpiderResident {
     this.pose = 'idle';
     this.sprite = scene.add.sprite(data.x, data.y, ensureSpiderTexture(scene, data.palette, 'idle'))
       .setDepth(2)
-      .setScale(0.9);
+      .setScale(1.05);
     this.label = scene.add.text(data.x, data.y - 30, data.name, {
       fontFamily: WORLD_TYPE.ui,
       fontSize: '10px',
@@ -46,7 +46,7 @@ class SpiderResident {
       this.pose = nextPose;
       this.sprite.setTexture(ensureSpiderTexture(this.scene, data.palette, nextPose));
     }
-    this.label.setPosition(this.sprite.x, this.sprite.y - 30);
+    this.label.setPosition(this.sprite.x, this.sprite.y - 36);
   }
 
   destroy() {

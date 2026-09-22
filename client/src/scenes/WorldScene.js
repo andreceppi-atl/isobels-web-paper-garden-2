@@ -34,8 +34,8 @@ const HANDSHAKE_RANGE = 90;
 const EMOTE_COOLDOWN_MS = 800;
 const SPIDER_RADIUS = 14;
 const BIG_RELEASE_SPEED = 9;
-const CAMERA_FOLLOW_OFFSET_Y = -160;
-const CAMERA_ZOOM = 0.55;
+const CAMERA_FOLLOW_OFFSET_Y = -80;
+const CAMERA_ZOOM = 0.82;
 
 export default class WorldScene extends Phaser.Scene {
   constructor() {
@@ -138,8 +138,10 @@ export default class WorldScene extends Phaser.Scene {
 
     this.nameTag = this.add.text(0, 0, this.playerName, {
       fontFamily: WORLD_TYPE.ui,
-      fontSize: '11px',
-      color: WORLD_CSS.ink
+      fontSize: '13px',
+      color: WORLD_CSS.ink,
+      backgroundColor: WORLD_CSS.paper,
+      padding: { x: 3, y: 1 }
     }).setOrigin(0.5, 1);
 
     this.spider.sprite.setDepth(2);
@@ -649,7 +651,7 @@ export default class WorldScene extends Phaser.Scene {
     const spriteRot = this.spider.sprite.rotation;
     this.spider.sprite.rotation = spriteRot + Phaser.Math.Angle.Wrap(targetRot - spriteRot) * Math.min(1, delta / 60);
     this.spider.sprite.setScale(stuntAnimation.scale);
-    this.nameTag.setPosition(this.spider.sprite.x, this.spider.sprite.y - 34);
+    this.nameTag.setPosition(this.spider.sprite.x, this.spider.sprite.y - 40);
     if (this.localBubble) this.localBubble.setPosition(this.spider.sprite.x, this.spider.sprite.y - 50);
 
     if (this.spider.sprite.y > MAP.height) {

@@ -4,7 +4,7 @@ import ChatBubble from './ChatBubble.js';
 import { threadHex } from '../../../shared/colors.js';
 import { WORLD_CSS } from '../world/worldTheme.js';
 
-const BUBBLE_OFFSET_Y = 50;
+const BUBBLE_OFFSET_Y = 56;
 const SMOOTHING = 0.015;
 const SNAP_DISTANCE = 300;
 
@@ -24,11 +24,13 @@ export default class RemoteSpider {
     this.anchor = null;
 
     const key = ensureSpiderTexture(scene, this.palette, this.pose);
-    this.sprite = scene.add.sprite(0, 0, key).setDepth(1).setVisible(false);
+    this.sprite = scene.add.sprite(0, 0, key).setScale(1.2).setDepth(1).setVisible(false);
     this.nameTag = scene.add.text(0, 0, data.name, {
       fontFamily: 'monospace',
-      fontSize: '11px',
-      color: WORLD_CSS.inkSoft
+      fontSize: '13px',
+      color: WORLD_CSS.inkSoft,
+      backgroundColor: WORLD_CSS.paper,
+      padding: { x: 3, y: 1 }
     }).setOrigin(0.5, 1).setDepth(1).setVisible(false);
     this.webGraphic = scene.add.graphics().setDepth(1);
 
@@ -80,7 +82,7 @@ export default class RemoteSpider {
       this.sprite.y += (this.target.y - this.sprite.y) * t;
     }
     this.sprite.rotation += Phaser.Math.Angle.Wrap(this.targetRot - this.sprite.rotation) * Math.min(1, delta / 60);
-    this.nameTag.setPosition(this.sprite.x, this.sprite.y - 34);
+    this.nameTag.setPosition(this.sprite.x, this.sprite.y - 40);
     if (this.bubble) this.bubble.setPosition(this.sprite.x, this.sprite.y - BUBBLE_OFFSET_Y);
 
     this.webGraphic.clear();
