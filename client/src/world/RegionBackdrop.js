@@ -152,7 +152,7 @@ export default class RegionBackdrop {
       const card = this.keep(this.scene.add.container(post.x, post.y).setDepth(-3));
       const box = this.scene.add.rectangle(0, 0, 680, 250, WORLD_COLOR.paper, 0.9).setStrokeStyle(2, WORLD_COLOR.inkSoft, 0.55);
       const date = this.scene.add.text(-300, -94, post.date, { fontFamily: WORLD_TYPE.ui, fontSize: '14px', color: WORLD_CSS.linkBlue });
-      const title = this.scene.add.text(-300, -48, post.title, { fontFamily: WORLD_TYPE.display, fontSize: '23px', color: WORLD_CSS.ink });
+      const title = this.scene.add.text(-300, -48, post.title, { fontFamily: WORLD_TYPE.display, fontSize: '24px', color: WORLD_CSS.ink });
       const body = this.scene.add.text(-300, 10, post.body, { fontFamily: WORLD_TYPE.ui, fontSize: '14px', color: WORLD_CSS.inkSoft });
       const footer = this.scene.add.text(-300, 64, 'reply · archive · next', { fontFamily: WORLD_TYPE.ui, fontSize: '12px', color: WORLD_CSS.inkSoft });
       card.add([box, date, title, body, footer]);
@@ -163,13 +163,13 @@ export default class RegionBackdrop {
 
   drawBillboards() {
     (this.map.billboards || []).forEach((board) => {
-      const g = this.keep(this.scene.add.graphics().setDepth(-1));
-      g.lineStyle(3, WORLD_COLOR.ink, 0.68);
-      g.fillStyle(WORLD_COLOR.paper, 0.8);
-      g.fillRect(board.x, board.y, board.w, board.h);
-      g.strokeRect(board.x, board.y, board.w, board.h);
-      g.lineBetween(board.x + 52, board.y + board.h, board.x + 52, board.y + board.h + 90);
-      g.lineBetween(board.x + board.w - 52, board.y + board.h, board.x + board.w - 52, board.y + board.h + 90);
+      if (!board.artPixel) {
+        const g = this.keep(this.scene.add.graphics().setDepth(-1));
+        g.lineStyle(3, WORLD_COLOR.ink, 0.68);
+        g.fillStyle(WORLD_COLOR.paper, 0.8);
+        g.fillRect(board.x, board.y, board.w, board.h);
+        g.strokeRect(board.x, board.y, board.w, board.h);
+      }
       this.keep(this.scene.add.text(board.x + board.w / 2, board.y + board.h / 2, board.label, {
         fontFamily: WORLD_TYPE.ui,
         fontSize: '14px',

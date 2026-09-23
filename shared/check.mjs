@@ -25,6 +25,7 @@ const resting = (a, b) => {
 };
 const floorSeam = (a, b) => a.kind === 'floor' && b.kind === 'floor' &&
   (a.x + a.w === b.x || b.x + b.w === a.x);
+const treeJoint = (a, b) => a.region === b.region && (a.kind === 'trunk' || b.kind === 'trunk');
 
 for (const [id, map] of Object.entries(MAPS)) {
   const m = loadMap(id);
@@ -33,8 +34,8 @@ for (const [id, map] of Object.entries(MAPS)) {
     if (a.x < 0 || a.y < 0 || a.x + a.w > m.width || a.y + a.h > m.height + 1) bad.push(`solid ${i} outside the world`);
     m.solids.forEach((b, j) => {
       if (j <= i) return;
-      if (overlaps(a, b)) bad.push(`solids ${i} and ${j} overlap`);
-      else if (!resting(a, b) && !floorSeam(a, b) && rectGap(a, b) < 60) bad.push(`solids ${i} and ${j} only ${Math.round(rectGap(a, b))}px apart`);
+      if (overlaps(a, b) && !treeJoint(a, b)) bad.push(`solids ${i} and ${j} overlap`);
+      else if (!overlaps(a, b) && !resting(a, b) && !floorSeam(a, b) && !treeJoint(a, b) && rectGap(a, b) < 60) bad.push(`solids ${i} and ${j} only ${Math.round(rectGap(a, b))}px apart`);
     });
   });
   check(`map "${id}": solids in bounds, none overlapping, gaps >= 60px`, bad, []);

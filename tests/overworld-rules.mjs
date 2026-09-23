@@ -24,6 +24,16 @@ check('every visible ledge is registered from a literal pixel-art top edge', art
 check('each painted regional ground uses its measured pixel-art surface', world.solids.filter(({ kind, hidden }) => kind === 'floor' && !hidden).every((solid) => (
   solid.artPixel && solid.y === solid.artPixel.y * artScale && solid.w === solid.artPixel.w * artScale
 )));
+check('every billboard content box is registered to its painted sign frame', world.billboards.every((board) => {
+  const region = world.regions.find(({ id }) => id === board.region);
+  return board.artPixel && board.x - region.x === board.artPixel.x * artScale &&
+    board.y === board.artPixel.y * artScale && board.w === board.artPixel.w * artScale &&
+    board.h === board.artPixel.h * artScale;
+}));
+const trunk = world.solids.filter(({ kind }) => kind === 'trunk').sort((a, b) => a.y - b.y);
+check('the central tree trunk widens in stacked silhouette bands down to the painted floor', trunk.length >= 6 &&
+  trunk[1].w < trunk[0].w && trunk.slice(2).every((segment, index) => segment.w >= trunk[index + 1].w) &&
+  trunk.at(-1).y + trunk.at(-1).h === world.groundY);
 check('every generated collision ledge names its visible feature', world.solids.length >= 45 && world.solids.every(({ id, feature }) => id && feature));
 check('the scaffold has distinct tangible palettes for snow, tree, page, and cards', ['snow', 'branch', 'trunk', 'page', 'card'].every((kind) => world.solids.some((solid) => solid.kind === kind)));
 check('the floor is inside the camera world instead of below it', world.groundY > world.height * 0.72 && world.groundY < world.height - 300);

@@ -17,6 +17,17 @@ const platformPx = (x, y, w, kind, feature, h = 32) => ({
   x: x * ART_SCALE, y: y * ART_SCALE, w: w * ART_SCALE, h, kind, feature,
   artPixel: { x, y, w }
 });
+const trunkPx = (x, y, w, h, feature) => ({
+  x: x * ART_SCALE, y: y * ART_SCALE, w: w * ART_SCALE, h: h * ART_SCALE,
+  kind: 'trunk', feature, artPixel: { x, y, w, h }
+});
+const billboardPx = (id, regionId, x, y, w, h, label) => {
+  const region = regions.find(({ id: candidate }) => candidate === regionId);
+  return {
+    id, region: regionId, x: region.x + x * ART_SCALE, y: y * ART_SCALE,
+    w: w * ART_SCALE, h: h * ART_SCALE, label, artPixel: { x, y, w, h }
+  };
+};
 
 const sectionSpecs = {
   snowfield: [
@@ -51,7 +62,12 @@ const sectionSpecs = {
     platformPx(197, 213, 127, 'branch', 'lantern limb'),
     platformPx(827, 214, 114, 'branch', 'canopy post'),
     platformPx(493, 218, 132, 'branch', 'Isobel house limb'),
-    platformPx(548, 224.4, 16, 'trunk', 'central cherry trunk', 1448),
+    trunkPx(500, 136.4, 125, 81.6, 'central trunk / crown neck'),
+    trunkPx(510, 224.4, 105, 70.6, 'central trunk / upper taper'),
+    trunkPx(495, 301.4, 130, 121.6, 'central trunk / middle taper'),
+    trunkPx(480, 423, 160, 37, 'central trunk / lower flare'),
+    trunkPx(460, 460, 200, 40, 'central trunk / broad base'),
+    trunkPx(430, 500, 260, 14, 'central trunk / root crown'),
     platformPx(410, 130, 122, 'branch', 'west crown'),
     platformPx(585, 130, 133, 'branch', 'east crown')
   ],
@@ -182,13 +198,13 @@ const humanoids = [
 ];
 
 const billboards = [
-  { id: 'snow-trail', x: 260, y: 1890, w: 420, h: 220, label: 'TRAIL NOTICE / OPEN SPACE' },
-  { id: 'mountain-overlook', x: 3230, y: 610, w: 520, h: 220, label: 'MOUNTAIN SIGNAL / OPEN SPACE' },
-  { id: 'tree-left', x: 5900, y: 1900, w: 400, h: 210, label: 'HANGING SCROLL / OPEN SPACE' },
-  { id: 'tree-right', x: 9100, y: 1480, w: 420, h: 210, label: 'CANOPY POSTER / OPEN SPACE' },
-  { id: 'site-index', x: 10450, y: 700, w: 620, h: 260, label: 'SITE WINDOW / OPEN SPACE' },
-  { id: 'ravine-wall', x: 12920, y: 1220, w: 520, h: 250, label: 'BLOG FEATURE / OPEN SPACE' },
-  { id: 'page-edge', x: 14620, y: 1460, w: 500, h: 240, label: 'LINK PANEL / OPEN SPACE' }
+  billboardPx('snow-trail', 'snowfield', 44, 381, 101, 44, 'TRAIL NOTICE / OPEN SPACE'),
+  billboardPx('mountain-overlook', 'snowfield', 640, 127, 99, 39, 'MOUNTAIN SIGNAL / OPEN SPACE'),
+  billboardPx('tree-left', 'blossom-crown', 110, 375, 100, 41, 'HANGING SCROLL / OPEN SPACE'),
+  billboardPx('tree-right', 'blossom-crown', 792, 277, 90, 37, 'CANOPY POSTER / OPEN SPACE'),
+  billboardPx('site-index', 'live-web', 28, 108, 132, 58, 'SITE WINDOW / OPEN SPACE'),
+  billboardPx('ravine-wall', 'live-web', 530, 220, 128, 66, 'BLOG FEATURE / OPEN SPACE'),
+  billboardPx('page-edge', 'live-web', 876, 271, 119, 54, 'LINK PANEL / OPEN SPACE')
 ];
 
 const waypoints = [
