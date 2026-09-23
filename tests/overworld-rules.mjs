@@ -15,6 +15,7 @@ check('the regions touch without loading gaps', world.regions.every((region, ind
 check('the raster plate is gone and the world is a versioned procedural scaffold', !world.artPlate && world.scaffoldVersion === 2 && !!world.seed);
 check('the builder grid maps exactly onto the procedural world', world.editorGrid?.scale === 8 && world.width === world.editorGrid.nativeWidth * world.editorGrid.scale && world.height === world.editorGrid.nativeHeight * world.editorGrid.scale);
 check('the three pixel-art plates align one-to-one with the three world regions', world.environmentPlates.length === 3 && world.environmentPlates.every((plate, index) => plate.x === world.regions[index].x && plate.w === world.regions[index].w));
+check('the official pixel-art palette renders at full opacity without a paper wash', world.environmentPlates.every(({ alpha }) => alpha === 1));
 const artScale = world.artRegistration?.worldScale;
 check('every visible ledge is registered from a literal pixel-art top edge', artScale === 5 && world.solids.filter(({ kind }) => kind !== 'floor').every((solid) => {
   const region = world.regions.find(({ id }) => id === solid.region);

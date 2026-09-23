@@ -40,7 +40,7 @@ export default class RegionBackdrop {
       this.keep(this.scene.add.image(plate.x, 0, plate.texture)
         .setOrigin(0, 0)
         .setDisplaySize(plate.w, this.map.height)
-        .setAlpha(plate.alpha ?? 0.72)
+        .setAlpha(plate.alpha ?? 1)
         .setDepth(-6));
     });
   }

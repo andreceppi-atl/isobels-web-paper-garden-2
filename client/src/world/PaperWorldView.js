@@ -43,15 +43,15 @@ export default class PaperWorldView {
   }
 
   addRoomGuides() {
+    const followsArt = !!(this.map.artPlate || this.map.environmentPlates?.length);
+    if (followsArt) return;
     const g = this.scene.add.graphics().setDepth(-2);
-    if (!this.map.artPlate) {
-      for (let y = 260; y < this.map.height; y += 220) {
-        g.lineStyle(1, WORLD_COLOR.inkFaint, 0.14);
-        g.lineBetween(0, y, this.map.width, y);
-      }
+    for (let y = 260; y < this.map.height; y += 220) {
+      g.lineStyle(1, WORLD_COLOR.inkFaint, 0.14);
+      g.lineBetween(0, y, this.map.width, y);
     }
     (this.map.rooms || []).forEach((room, index) => {
-      if (index > 0 && !this.map.artPlate) {
+      if (index > 0) {
         g.lineStyle(1, WORLD_COLOR.inkSoft, 0.26);
         g.lineBetween(room.x, 150, room.x, this.map.height - 170);
       }
@@ -142,7 +142,7 @@ export default class PaperWorldView {
       label: 'solid',
       friction: 0.6
     });
-    if (solid.hidden) {
+    if (solid.hidden || (followsArt && solid.editorBase)) {
       this.solidItems.set(solid.editorId || solid, { body, display: null });
       return;
     }
@@ -154,9 +154,9 @@ export default class PaperWorldView {
       solid.w,
       displayHeight,
       KIND_FILL[solid.kind] || WORLD_COLOR.linkWash,
-      solid.editorBase && followsArt ? 0.025 : solid.kind === 'floor' ? 0.92 : 0.82
+      solid.kind === 'floor' ? 0.92 : 0.82
     )
-      .setStrokeStyle(followsArt ? 1 : 3, WORLD_COLOR.ink, solid.editorBase && followsArt ? 0.14 : 0.9)
+      .setStrokeStyle(followsArt ? 1 : 3, WORLD_COLOR.ink, 0.9)
       .setDepth(solid.editorBase ? -1 : 0);
     this.solidItems.set(solid.editorId || solid, { body, display });
     if (!followsArt) this.hatchEdge(this.hatch, solid);
