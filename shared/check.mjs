@@ -25,7 +25,7 @@ const resting = (a, b) => {
 };
 const floorSeam = (a, b) => a.kind === 'floor' && b.kind === 'floor' &&
   (a.x + a.w === b.x || b.x + b.w === a.x);
-const treeJoint = (a, b) => a.region === b.region && (a.kind === 'trunk' || b.kind === 'trunk');
+const treeJoint = (a, b) => a.region === b.region && a.structure && a.structure === b.structure;
 
 for (const [id, map] of Object.entries(MAPS)) {
   const m = loadMap(id);

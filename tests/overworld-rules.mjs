@@ -31,9 +31,16 @@ check('every billboard content box is registered to its painted sign frame', wor
     board.h === board.artPixel.h * artScale;
 }));
 const trunk = world.solids.filter(({ kind }) => kind === 'trunk').sort((a, b) => a.y - b.y);
-check('the central tree trunk widens in stacked silhouette bands down to the painted floor', trunk.length >= 6 &&
-  trunk[1].w < trunk[0].w && trunk.slice(2).every((segment, index) => segment.w >= trunk[index + 1].w) &&
-  trunk.at(-1).y + trunk.at(-1).h === world.groundY);
+const trunkCore = trunk.filter(({ collisionRole }) => collisionRole === 'trunk');
+check('the central tree trunk is a sealed fine-grain contour down to the painted floor', trunkCore.length >= 20 &&
+  trunkCore.every((segment, index) => index === 0 || segment.y <= trunkCore[index - 1].y + trunkCore[index - 1].h) &&
+  trunkCore.at(-1).y + trunkCore.at(-1).h === world.groundY);
+check('the painted diagonal limbs and roots have tangible overlapping contours', trunk.some(({ collisionRole }) => collisionRole === 'limb') &&
+  trunk.filter(({ collisionRole }) => collisionRole === 'limb').length >= 30);
+check('branch blossom buds are tangible instead of decorative-only', world.solids.filter(({ kind }) => kind === 'bud').length >= 20);
+check('the treehouse has a roof, walls, open doorway posts, and threshold', world.solids.filter(({ kind }) => kind === 'house').length >= 8 &&
+  world.solids.some(({ feature }) => feature === 'treehouse threshold'));
+check('the treehouse crown floor is one sealed platform', world.solids.some(({ feature, w }) => feature === 'treehouse porch / crown floor' && w >= 300 * artScale));
 check('every generated collision ledge names its visible feature', world.solids.length >= 45 && world.solids.every(({ id, feature }) => id && feature));
 check('the scaffold has distinct tangible palettes for snow, tree, page, and cards', ['snow', 'branch', 'trunk', 'page', 'card'].every((kind) => world.solids.some((solid) => solid.kind === kind)));
 check('the floor is inside the camera world instead of below it', world.groundY > world.height * 0.72 && world.groundY < world.height - 300);

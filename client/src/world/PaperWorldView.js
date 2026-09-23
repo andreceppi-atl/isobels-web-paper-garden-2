@@ -8,6 +8,8 @@ const KIND_FILL = Object.freeze({
   snow: WORLD_COLOR.ice,
   branch: WORLD_COLOR.blossom,
   trunk: WORLD_COLOR.blossom,
+  bud: WORLD_COLOR.blossomLight,
+  house: WORLD_COLOR.paper,
   page: WORLD_COLOR.linkWash,
   card: WORLD_COLOR.paper,
   editor: WORLD_COLOR.linkWash

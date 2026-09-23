@@ -1,3 +1,5 @@
+import sakuraCollision from './sakuraCollision.js';
+
 const WORLD_WIDTH = 15360;
 const WORLD_HEIGHT = 2880;
 const REGION_WIDTH = WORLD_WIDTH / 3;
@@ -17,9 +19,10 @@ const platformPx = (x, y, w, kind, feature, h = 32) => ({
   x: x * ART_SCALE, y: y * ART_SCALE, w: w * ART_SCALE, h, kind, feature,
   artPixel: { x, y, w }
 });
-const trunkPx = (x, y, w, h, feature) => ({
+const collisionPx = ({ x, y, w, h, ...details }) => ({
+  ...details,
   x: x * ART_SCALE, y: y * ART_SCALE, w: w * ART_SCALE, h: h * ART_SCALE,
-  kind: 'trunk', feature, artPixel: { x, y, w, h }
+  artPixel: { x, y, w, h }
 });
 const billboardPx = (id, regionId, x, y, w, h, label) => {
   const region = regions.find(({ id: candidate }) => candidate === regionId);
@@ -62,14 +65,8 @@ const sectionSpecs = {
     platformPx(197, 213, 127, 'branch', 'lantern limb'),
     platformPx(827, 214, 114, 'branch', 'canopy post'),
     platformPx(493, 218, 132, 'branch', 'Isobel house limb'),
-    trunkPx(500, 136.4, 125, 81.6, 'central trunk / crown neck'),
-    trunkPx(510, 224.4, 105, 70.6, 'central trunk / upper taper'),
-    trunkPx(495, 301.4, 130, 121.6, 'central trunk / middle taper'),
-    trunkPx(480, 423, 160, 37, 'central trunk / lower flare'),
-    trunkPx(460, 460, 200, 40, 'central trunk / broad base'),
-    trunkPx(430, 500, 260, 14, 'central trunk / root crown'),
-    platformPx(410, 130, 122, 'branch', 'west crown'),
-    platformPx(585, 130, 133, 'branch', 'east crown')
+    platformPx(410, 130, 308, 'branch', 'treehouse porch / crown floor'),
+    ...sakuraCollision.map(collisionPx)
   ],
   'live-web': [
     platformPx(8, 443, 119, 'page', 'site threshold', 40),
@@ -95,11 +92,12 @@ const sectionSolids = regions.flatMap((region) => sectionSpecs[region.id].map((s
   ...spec,
   id: `${region.id}-${String(index + 1).padStart(2, '0')}`,
   x: region.x + spec.x,
-  region: region.id
+  region: region.id,
+  structure: spec.structure || (region.id === 'blossom-crown' ? 'sakura-tree' : undefined)
 })));
 const floors = [
   { id: 'snowfield-floor', x: 0, y: 2490, w: REGION_WIDTH, h: 390, kind: 'floor', feature: 'snowfield ground', region: 'snowfield', artPixel: { x: 0, y: 498, w: 1024 } },
-  { id: 'blossom-floor', x: REGION_WIDTH, y: 2570, w: REGION_WIDTH, h: 310, kind: 'floor', feature: 'blossom ground', region: 'blossom-crown', artPixel: { x: 0, y: 514, w: 1024 } },
+  { id: 'blossom-floor', x: REGION_WIDTH, y: 2570, w: REGION_WIDTH, h: 310, kind: 'floor', feature: 'blossom ground', region: 'blossom-crown', structure: 'sakura-tree', artPixel: { x: 0, y: 514, w: 1024 } },
   { id: 'live-web-catch', x: REGION_WIDTH * 2, y: 2760, w: REGION_WIDTH, h: 120, kind: 'floor', feature: 'hidden page catch', region: 'live-web', hidden: true }
 ];
 const solids = [...floors, ...sectionSolids];
@@ -129,7 +127,7 @@ function pathAnchors(points) {
   return anchors;
 }
 
-const ledgeAnchors = sectionSolids.flatMap((solid) => {
+const ledgeAnchors = sectionSolids.filter(({ anchorable }) => anchorable !== false).flatMap((solid) => {
   const count = Math.max(1, Math.floor(solid.w / 260));
   return Array.from({ length: count }, (_, index) => ({
     x: Math.round(solid.x + ((index + 1) / (count + 1)) * solid.w),
